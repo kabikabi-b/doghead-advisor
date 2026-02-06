@@ -1,0 +1,58 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="header">
+    <view class="logo-container">
+      <text class="logo">🐕</text>
+    </view>
+    <text class="title">狗头军师</text>
+    <text class="subtitle">今天有什么烦心事？</text>
+  </view>
+
+  <!-- Question Card -->
+  <view class="card question-card">
+    <textarea 
+      class="input-field"
+      placeholder="输入你的问题..."
+      placeholder-class="placeholder"
+      bindinput="onQuestionInput"
+      value="{{question}}"
+      maxlength="{{500}}"
+    ></textarea>
+    <text class="char-count">{{question.length}}/500</text>
+  </view>
+
+  <!-- Generate Button -->
+  <view class="btn-container">
+    <button 
+      class="btn-primary generate-btn" 
+      bindtap="onGenerateTap"
+      disabled="{{!question.trim() || loading}}"
+    >
+      {{loading ? '思考中...' : '🔮 生成无厘头回复'}}
+    </button>
+  </view>
+
+  <!-- History Entry -->
+  <view class="history-entry card" bindtap="goToHistory">
+    <text class="history-icon">📜</text>
+    <text class="history-text">查看历史记录</text>
+    <text class="arrow">›</text>
+  </view>
+
+  <!-- Sample Questions -->
+  <view class="sample-section">
+    <text class="sample-title">热门问题</text>
+    <view class="sample-list">
+      <view 
+        class="sample-item card" 
+        wx:for="{{sampleQuestions}}" 
+        wx:key="index"
+        bindtap="onSampleTap"
+        data-question="{{item}}"
+      >
+        <text class="sample-q">{{item}}</text>
+      </view>
+    </view>
+  </view>
+</view>

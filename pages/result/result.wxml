@@ -1,0 +1,56 @@
+<!--pages/result/result.wxml-->
+<view class="container">
+  <!-- Header with Back -->
+  <view class="header">
+    <view class="back-btn" bindtap="onBackTap">
+      <text class="back-icon">‹</text>
+      <text class="back-text">返回</text>
+    </view>
+    <text class="header-title">🐕 狗头军师</text>
+    <view class="header-placeholder"></view>
+  </view>
+
+  <!-- Question Card -->
+  <view class="card question-card">
+    <view class="label">你的问题</view>
+    <text class="question-text">{{question}}</text>
+  </view>
+
+  <!-- Answer Card -->
+  <view class="card answer-card">
+    <view class="label">狗头军师的回复</view>
+    <view class="answer-container">
+      <text class="answer-text">{{reply}}</text>
+    </view>
+    <view class="style-tag">✨ 无厘头风格</view>
+  </view>
+
+  <!-- Action Buttons -->
+  <view class="action-buttons">
+    <button 
+      class="btn-action copy-btn" 
+      bindtap="onCopyTap"
+      data-content="{{reply}}"
+    >
+      📋 一键复制
+    </button>
+    <button 
+      class="btn-action like-btn {{liked ? 'liked' : ''}}" 
+      bindtap="onLikeTap"
+    >
+      {{liked ? '❤️ 已赞' : '👍 点赞'}}
+    </button>
+  </view>
+
+  <!-- Ask Another Button -->
+  <view class="ask-again-container">
+    <button class="btn-secondary ask-again-btn" bindtap="onAskAgainTap">
+      🔄 再问一个
+    </button>
+  </view>
+
+  <!-- Toast -->
+  <view class="toast {{showToast ? 'show' : ''}}">
+    <text>{{toastText}}</text>
+  </view>
+</view>

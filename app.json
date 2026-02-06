@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/result/result",
+    "pages/history/history"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#F5F5DC",
+    "navigationBarTitleText": "狗头军师",
+    "navigationBarTextStyle": "dark"
+  },
+  "sitemapLocation": "sitemap.json"
+}

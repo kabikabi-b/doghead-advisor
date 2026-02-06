@@ -1,0 +1,25 @@
+{
+  "name": "doghead-advisor-e2e",
+  "version": "1.0.0",
+  "description": "狗头军师微信小程序 E2E 测试",
+  "scripts": {
+    "test": "jest",
+    "test:e2e": "jest --testPathPattern=e2e",
+    "test:index": "jest --testPathPattern=e2e/index.spec.js",
+    "test:result": "jest --testPathPattern=e2e/result.spec.js",
+    "test:history": "jest --testPathPattern=e2e/history.spec.js"
+  },
+  "keywords": [
+    "miniprogram",
+    "e2e",
+    "test",
+    "wechat"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "miniprogram-automator": "^1.0.0",
+    "jest": "^29.0.0"
+  },
+  "devDependencies": {}
+}

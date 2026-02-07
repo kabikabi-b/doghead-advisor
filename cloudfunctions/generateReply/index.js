@@ -5,6 +5,8 @@ cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 });
 
+const db = cloud.database();
+
 // 无厘头风格的 Prompt
 const NONSENSICAL_PROMPT = `
 你是一个幽默搞笑的"狗头军师"，专门给出无厘头的建议。你的特点是：
@@ -33,8 +35,6 @@ const NONSENSICAL_PROMPT = `
 // MiniMax API 配置
 const MINIMAX_API_URL = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
 
-// 注意：请在微信云函数环境变量中设置以下值
-// MINIMAX_API_KEY
 const getMiniMaxApiKey = () => {
   return process.env.MINIMAX_API_KEY || '';
 };
@@ -43,7 +43,6 @@ async function callMiniMaxAPI(question) {
   const apiKey = getMiniMaxApiKey();
   
   if (!apiKey) {
-    // 如果没有 API key，返回预设的无厘头回复（测试用）
     return generateFallbackReply(question);
   }
 
@@ -56,23 +55,19 @@ async function callMiniMaxAPI(question) {
         'Authorization': `Bearer ${apiKey}`
       },
       body: {
-        model: 'abab6.5s-chat', // MiniMax 聊天模型
-        messages: [
-          {
-            role: 'user',
-            content: NONSENSICAL_PROMPT.replace('{{question}}', question)
-          }
-        ],
+        model: 'abab6.5s-chat',
+        messages: [{
+          role: 'user',
+          content: NONSENSICAL_PROMPT.replace('{{question}}', question)
+        }],
         temperature: 0.9,
         max_tokens: 500
       }
     });
 
-    // 解析响应
     if (response.data && response.data.choices && response.data.choices.length > 0) {
       return response.data.choices[0].message.content.trim();
     }
-    
     return generateFallbackReply(question);
   } catch (error) {
     console.error('MiniMax API 调用失败:', error);
@@ -80,7 +75,6 @@ async function callMiniMaxAPI(question) {
   }
 }
 
-// 生成预设的无厘头回复（备用）
 function generateFallbackReply(question) {
   const replies = [
     "这个问题嘛，我觉得你应该去问问你家的猫，它可能比你聪明。🐱",
@@ -95,37 +89,43 @@ function generateFallbackReply(question) {
     "我的狗头军师直觉告诉我：follow your heart！...虽然我只是个狗头。🐕"
   ];
   
-  // 根据问题长度选择一个相对固定的回复
   const index = question.length % replies.length;
   return replies[index];
 }
 
-// 云函数入口
 exports.main = async (event, context) => {
   const { question } = event;
+  const wxContext = cloud.getWXContext();
   
   if (!question || question.trim() === '') {
-    return {
-      success: false,
-      error: '问题不能为空'
-    };
+    return { success: false, error: '问题不能为空' };
   }
   
   try {
-    // 调用 MiniMax API 生成无厘头回复
+    // 生成回复
     const reply = await callMiniMaxAPI(question);
+    const questionId = Date.now().toString();
+    
+    // 保存问题到 questions collection
+    await db.collection('questions').add({
+      data: {
+        questionId: questionId,
+        question: question,
+        reply: reply,
+        createTime: new Date(),
+        likes: 0,
+        openid: wxContext.OPENID
+      }
+    });
     
     return {
       success: true,
       question,
       reply,
-      questionId: Date.now().toString()
+      questionId
     };
   } catch (error) {
     console.error('生成回复失败:', error);
-    return {
-      success: false,
-      error: '生成回复失败，请重试'
-    };
+    return { success: false, error: '生成回复失败，请重试' };
   }
 };

@@ -1,52 +1,31 @@
-// pages/home/home.js
 Page({
   data: {
-    question: ''
+    question: '',
+    examples: ['老板不给涨工资', '女朋友生气了', '朋友借钱不还', '被同事穿小鞋']
   },
-  
-  onQuestionInput(e) {
-    this.setData({
-      question: e.detail.value
-    })
-  },
-  
-  onExampleTap(e) {
-    const question = e.currentTarget.dataset.question
-    this.setData({ question })
-    this.onGenerate()
-  },
-  
+  onLoad() {},
+  onQuestionInput(e) { this.setData({ question: e.detail.value }); },
+  onExampleTap(e) { this.setData({ question: e.currentTarget.dataset.question }); },
   onGenerate() {
-    const { question } = this.data
-    if (!question.trim()) {
-      wx.showToast({
-        title: '请输入问题',
-        icon: 'none'
-      })
-      return
+    if (!this.data.question.trim()) {
+      wx.showToast({ title: '请输入问题', icon: 'none' });
+      return;
     }
-    
-    wx.showLoading({ title: '思考中...' })
-    
-    // 调用云函数生成回复
+    wx.showLoading({ title: '生成中...' });
     wx.cloud.callFunction({
       name: 'generateReply',
-      data: { question }
-    }).then(res => {
-      wx.hideLoading()
-      if (res.result.success) {
-        wx.showModal({
-          title: '🎯 狗狗军师回复',
-          content: res.result.answer,
-          showCancel: false
-        })
+      data: { question: this.data.question },
+      success: res => {
+        wx.hideLoading();
+        if (res.result.success) {
+          wx.setStorageSync('lastAnswer', res.result.answer);
+          wx.navigateTo({ url: '/pages/community/community' });
+        }
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: '生成失败', icon: 'none' });
       }
-    }).catch(err => {
-      wx.hideLoading()
-      wx.showToast({
-        title: '生成失败',
-        icon: 'none'
-      })
-    })
+    });
   }
-})
+});

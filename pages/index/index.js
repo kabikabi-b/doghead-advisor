@@ -28,42 +28,41 @@ Page({
   // 生成回复
   onGenerateTap() {
     const question = this.data.question.trim();
-    console.log('[onGenerateTap] question:', question);
     
     if (!question) {
       wx.showToast({ title: '请输入问题', icon: 'none' });
       return;
     }
 
-    console.log('[onGenerateTap] 开始调用云函数...');
     this.setData({ loading: true });
+    console.log('[onGenerateTap] 开始调用云函数...');
 
     // 调用云函数生成回复
     wx.cloud.callFunction({
       name: 'generateReply',
       data: { question }
     }).then(res => {
-      console.log('[onGenerateTap] 云函数返回完整:', JSON.stringify(res, null, 2));
+      console.log('[onGenerateTap] 返回:', res);
       this.setData({ loading: false });
       
-      // 兼容不同的返回格式
-      const resultData = res.result || res.data || res;
-      console.log('[onGenerateTap] resultData:', JSON.stringify(resultData));
+      const result = res.result || {};
+      console.log('[onGenerateTap] result:', result);
       
-      if (resultData && (resultData.success === true || resultData.code === 0)) {
-        const { reply, questionId } = resultData;
+      if (result.success === true) {
+        const { reply, questionId } = result;
         console.log('[onGenerateTap] 成功! reply:', reply);
         
         // 保存到历史记录
         this.saveToHistory(question, reply);
         
-        // 跳转结果页
-        wx.navigateTo({
-          url: `/pages/result/result?question=${encodeURIComponent(question)}&reply=${encodeURIComponent(reply)}&questionId=${questionId || ''}`
-        });
+        // 跳转结果页 - 使用绝对路径
+        const url = '/pages/result/result?question=' + encodeURIComponent(question) + '&reply=' + encodeURIComponent(reply) + '&questionId=' + (questionId || '');
+        console.log('[onGenerateTap] 跳转URL:', url);
+        
+        wx.navigateTo({ url: url });
       } else {
-        console.log('[onGenerateTap] 失败:', resultData);
-        wx.showToast({ title: resultData?.error || '生成失败', icon: 'none' });
+        console.log('[onGenerateTap] 失败:', result.error);
+        wx.showToast({ title: result.error || '生成失败', icon: 'none' });
       }
     }).catch(err => {
       console.error('[onGenerateTap] 异常:', err);

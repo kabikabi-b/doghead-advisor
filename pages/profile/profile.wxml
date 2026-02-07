@@ -5,14 +5,13 @@
     <view class="avatar-section">
       <image 
         class="avatar" 
-        src="{{userInfo.avatarUrl || '/images/dog-avatar/png/westie-cute.png'}}" 
+        src="/images/dog-avatar/png/westie-cute.png" 
         mode="aspectFill"
       />
     </view>
     <view class="info-section">
-      <text class="nickname">{{userInfo.nickName || '狗狗用户'}}</text>
-      <text class="user-id">ID: {{userInfo._id || userInfo.openid || '----'}}</text>
-      <text class="join-time">加入时间: {{userInfo.createTime || '----'}}</text>
+      <text class="nickname">狗狗用户</text>
+      <text class="user-id">ID: 000000</text>
     </view>
   </view>
 
@@ -28,49 +27,8 @@
     </view>
   </view>
 
-  <!-- 历史提问 -->
-  <view class="section">
-    <view class="section-header">
-      <text class="section-title">我的提问</text>
-      <text class="section-action" bindtap="onClearHistory">清除</text>
-    </view>
-    
-    <view class="question-list" wx:if="{{myQuestions.length > 0}}">
-      <view 
-        class="question-item" 
-        wx:for="{{myQuestions}}" 
-        wx:key="id"
-        bindtap="onQuestionTap" 
-        data-id="{{item.id}}"
-      >
-        <text class="question-text">{{item.question}}</text>
-        <text class="question-time">{{item.createTime}}</text>
-      </view>
-    </view>
-    
-    <view class="empty-state" wx:if="{{myQuestions.length === 0}}">
-      <text class="empty-icon">📭</text>
-      <text class="empty-text">还没有提问过</text>
-      <button class="btn-primary" bindtap="goToIndex">去提问</button>
-    </view>
+  <!-- 跳转首页 -->
+  <view class="btn-section">
+    <button class="go-index-btn" bindtap="goToIndex">💬 去提问</button>
   </view>
-
-  <!-- 其他功能 -->
-  <view class="menu-list">
-    <view class="menu-item" bindtap="onHistoryTap">
-      <text class="menu-icon">📜</text>
-      <text class="menu-text">历史记录</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <button class="menu-item share-btn" open-type="share">
-      <text class="menu-icon">📤</text>
-      <text class="menu-text">分享给朋友</text>
-      <text class="menu-arrow">›</text>
-    </button>
-  </view>
-</view>
-
-<!-- 跳转首页 -->
-<view class="fab" bindtap="goToIndex">
-  <text>💬</text>
 </view>

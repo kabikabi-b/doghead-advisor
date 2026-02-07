@@ -18,7 +18,12 @@ describe('首页测试', () => {
           success: true,
           reply: '测试回复',
           questionId: '123'
-        })
+        }),
+        database: jest.fn(() => ({
+          collection: jest.fn(() => ({
+            add: jest.fn().mockResolvedValue({ _id: 'test-id' })
+          }))
+        }))
       },
       showToast: jest.fn()
     };

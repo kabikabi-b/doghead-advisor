@@ -23,12 +23,12 @@ describe('应用配置测试', () => {
   describe('窗口配置', () => {
     test('导航栏背景米色', () => expect(appConfig.window.navigationBarBackgroundColor).toBe('#F5F5DC'));
     test('导航栏黑色文字', () => expect(appConfig.window.navigationBarTextStyle).toBe('black'));
-    test('标题狗头军师', () => expect(appConfig.window.navigationBarTitleText).toBe('狗头军师'));
+    test('标题狗狗军师', () => expect(appConfig.window.navigationBarTitleText).toBe('狗狗军师'));
   });
   
   describe('TabBar配置', () => {
     test('4个tab', () => expect(appConfig.tabBar.list.length).toBe(4));
-    test('选中橙色', () => expect(appConfig.tabBar.selectedColor).toBe('#FF8A65'));
+    test('选中巧克力色', () => expect(appConfig.tabBar.selectedColor).toBe('#D2691E'));
     test('包含首页', () => expect(appConfig.tabBar.list[0].pagePath).toBe('pages/index/index'));
     test('包含社群', () => expect(appConfig.tabBar.list[1].pagePath).toBe('pages/community/community'));
     test('包含排行榜', () => expect(appConfig.tabBar.list[2].pagePath).toBe('pages/leaderboard/leaderboard'));

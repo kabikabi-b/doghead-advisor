@@ -23,8 +23,13 @@ Page({
   },
 
   onShow() {
+    // 如果数据库有问题，不加载
+    if (this.data.collectionError) {
+      return;
+    }
+    
     // 如果数据库就绪且没有数据，才加载
-    if (this.data.questions.length === 0 && !this.data.collectionError) {
+    if (this.data.questions.length === 0) {
       this.loadQuestions();
     }
   },
@@ -52,6 +57,7 @@ Page({
       return true;
     } catch (error) {
       console.error('检查数据库失败:', error);
+      this.setData({ collectionError: true });
       return false;
     }
   },
@@ -102,11 +108,13 @@ Page({
   loadQuestions() {
     // 如果数据库有问题，不加载
     if (this.data.collectionError) {
+      console.log('[loadQuestions] 数据库有问题，跳过加载');
       return;
     }
     
     if (this.data.loading || !this.data.hasMore) return;
 
+    console.log('[loadQuestions] 开始加载问题');
     this.setData({ loading: true });
 
     const db = wx.cloud.database();
@@ -129,7 +137,7 @@ Page({
         });
       })
       .catch(err => {
-        console.error('加载问题失败:', err);
+        console.error('[loadQuestions] 加载问题失败:', err);
         this.setData({ loading: false });
         
         // 检查是否是集合不存在的错误

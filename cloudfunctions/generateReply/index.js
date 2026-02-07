@@ -24,22 +24,28 @@ const NONSENSICAL_PROMPT = `
 回答：
 `;
 
-// MiniMax API (Coding Plan)
+// MiniMax API - 支持 Coding Plan
 const MINIMAX_API_URL = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
 
 function getApiKey() {
+  // 优先从环境变量获取
   return process.env.MINIMAX_API_KEY || '';
 }
 
 async function callMiniMaxAPI(question) {
   const apiKey = getApiKey();
   
+  console.log('[generateReply] API Key 长度:', apiKey.length);
+  
   if (!apiKey) {
-    console.log('无 API Key，使用预设回复');
+    console.log('[generateReply] 无 API Key，使用预设回复');
     return generateFallbackReply(question);
   }
 
   try {
+    console.log('[generateReply] 正在调用 MiniMax API...');
+    
+    // Coding Plan 认证方式
     const response = await axios.post(MINIMAX_API_URL, {
       model: 'abab6.5s-chat',
       messages: [
@@ -56,18 +62,22 @@ async function callMiniMaxAPI(question) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      timeout: 10000
+      timeout: 15000
     });
 
+    console.log('[generateReply] MiniMax 响应状态:', response.status);
+    
     if (response.data && response.data.choices && response.data.choices.length > 0) {
       const reply = response.data.choices[0].message.content.trim();
-      console.log('MiniMax 回复:', reply);
+      console.log('[generateReply] MiniMax 回复:', reply);
       return reply;
     }
     
+    console.log('[generateReply] MiniMax 响应格式异常，使用预设');
     return generateFallbackReply(question);
   } catch (error) {
-    console.error('MiniMax API 错误:', error.response?.data || error.message);
+    console.error('[generateReply] MiniMax API 错误:', error.response?.status || error.code);
+    console.error('[generateReply] 错误详情:', error.response?.data || error.message);
     return generateFallbackReply(question);
   }
 }
@@ -82,11 +92,15 @@ function generateFallbackReply(question) {
     "答案就在冰箱里，去找找！🧊",
     "别想了，去吃顿好的比什么都强。🍕"
   ];
-  return replies[question.length % replies.length];
+  const index = question.length % replies.length;
+  console.log('[generateReply] 使用预设回复 index:', index, '问题长度:', question.length);
+  return replies[index];
 }
 
 exports.main = async (event, context) => {
   const { question } = event;
+  
+  console.log('[generateReply] 收到问题:', question);
   
   if (!question || question.trim() === '') {
     return { success: false, error: '问题不能为空' };
@@ -96,6 +110,8 @@ exports.main = async (event, context) => {
     const reply = await callMiniMaxAPI(question);
     const questionId = Date.now().toString();
     
+    console.log('[generateReply] 最终回复:', reply);
+    
     return {
       success: true,
       question,
@@ -103,7 +119,7 @@ exports.main = async (event, context) => {
       questionId
     };
   } catch (error) {
-    console.error('生成回复失败:', error);
+    console.error('[generateReply] 生成回复失败:', error);
     return { success: false, error: '生成回复失败，请重试' };
   }
 };

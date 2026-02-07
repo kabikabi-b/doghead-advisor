@@ -29,60 +29,46 @@ Page({
   onGenerateTap() {
     const question = this.data.question.trim();
     console.log('[onGenerateTap] question:', question);
-    console.log('[onGenerateTap] loading:', this.data.loading);
     
     if (!question) {
-      console.log('[onGenerateTap] 问题为空，显示提示');
-      wx.showToast({
-        title: '请输入问题',
-        icon: 'none'
-      });
+      wx.showToast({ title: '请输入问题', icon: 'none' });
       return;
     }
 
-    if (this.data.loading) {
-      console.log('[onGenerateTap] 正在加载中，忽略点击');
-      return;
-    }
-
+    console.log('[onGenerateTap] 开始调用云函数...');
     this.setData({ loading: true });
-    console.log('[onGenerateTap] 开始调用云函数');
 
     // 调用云函数生成回复
     wx.cloud.callFunction({
       name: 'generateReply',
-      data: { question },
-      success: (res) => {
-        console.log('[onGenerateTap] 云函数返回:', JSON.stringify(res));
-        this.setData({ loading: false });
+      data: { question }
+    }).then(res => {
+      console.log('[onGenerateTap] 云函数返回完整:', JSON.stringify(res, null, 2));
+      this.setData({ loading: false });
+      
+      // 兼容不同的返回格式
+      const resultData = res.result || res.data || res;
+      console.log('[onGenerateTap] resultData:', JSON.stringify(resultData));
+      
+      if (resultData && (resultData.success === true || resultData.code === 0)) {
+        const { reply, questionId } = resultData;
+        console.log('[onGenerateTap] 成功! reply:', reply);
         
-        if (res.result && res.result.success) {
-          const { reply, questionId } = res.result;
-          console.log('[onGenerateTap] 成功，跳转结果页');
-          
-          // 保存到历史记录
-          this.saveToHistory(question, reply);
-          
-          // 跳转到结果页
-          wx.navigateTo({
-            url: `/pages/result/result?question=${encodeURIComponent(question)}&reply=${encodeURIComponent(reply)}&questionId=${questionId}`
-          });
-        } else {
-          console.log('[onGenerateTap] 生成失败:', res.result);
-          wx.showToast({
-            title: res.result?.error || '生成失败，请重试',
-            icon: 'none'
-          });
-        }
-      },
-      fail: (err) => {
-        console.error('[onGenerateTap] 云函数调用失败:', err);
-        this.setData({ loading: false });
-        wx.showToast({
-          title: '网络错误，请重试',
-          icon: 'none'
+        // 保存到历史记录
+        this.saveToHistory(question, reply);
+        
+        // 跳转结果页
+        wx.navigateTo({
+          url: `/pages/result/result?question=${encodeURIComponent(question)}&reply=${encodeURIComponent(reply)}&questionId=${questionId || ''}`
         });
+      } else {
+        console.log('[onGenerateTap] 失败:', resultData);
+        wx.showToast({ title: resultData?.error || '生成失败', icon: 'none' });
       }
+    }).catch(err => {
+      console.error('[onGenerateTap] 异常:', err);
+      this.setData({ loading: false });
+      wx.showToast({ title: '网络错误', icon: 'none' });
     });
   },
 

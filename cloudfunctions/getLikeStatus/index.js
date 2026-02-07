@@ -27,20 +27,18 @@ exports.main = async (event, context) => {
     
     const userLiked = voteRecord.data.length > 0;
     
-    // 获取点赞总数
-    const answers = await db.collection('answers')
-      .where({ _id: questionId })
-      .get();
-    
-    let likeCount = 0;
-    if (answers.data.length > 0) {
-      likeCount = answers.data[0].likes || 0;
-    }
+    // 从 votes 集合统计该问题的点赞总数
+    const countResult = await db.collection('votes')
+      .where({
+        targetId: questionId,
+        targetType: 'answer'
+      })
+      .count();
     
     return {
       success: true,
       liked: userLiked,
-      likeCount: likeCount
+      likeCount: countResult.total || 0
     };
   } catch (error) {
     console.error('获取点赞状态失败:', error);

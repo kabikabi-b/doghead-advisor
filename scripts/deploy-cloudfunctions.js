@@ -15,7 +15,8 @@ const FUNCTIONS = [
   'generateReply',
   'getLeaderboard',
   'vote',
-  'getUserProfile'
+  'getUserProfile',
+  'initDb'
 ];
 
 // 默认环境配置

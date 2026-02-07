@@ -17,7 +17,8 @@ const FUNCTIONS = [
   { name: 'generateReply', testData: { question: '今天运气怎么样？' } },
   { name: 'getLeaderboard', testData: { limit: 10 } },
   { name: 'vote', testData: { questionId: 'test-123', voteType: 'up' } },
-  { name: 'getUserProfile', testData: { openid: 'test-openid' } }
+  { name: 'getUserProfile', testData: { openid: 'test-openid' } },
+  { name: 'initDb', testData: { action: 'init' } }
 ];
 
 // 默认环境配置

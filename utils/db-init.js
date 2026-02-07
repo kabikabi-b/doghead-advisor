@@ -107,5 +107,6 @@ module.exports = {
   checkCollections,
   initDatabase,
   checkAndNotify,
+  getNotReadyCollections,
   COLLECTIONS
 };

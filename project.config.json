@@ -1,46 +1,29 @@
 {
-  "miniprogramRoot": "",
-  "cloudfunctionRoot": "cloudfunctions/",
-  "setting": {
-    "urlCheck": true,
-    "es6": true,
-    "enhance": true,
-    "postcss": true,
-    "preloadBackgroundData": false,
-    "minified": true,
-    "newFeature": true,
-    "coverView": true,
-    "nodeModules": true,
-    "autoAudits": false,
-    "showShadowRootInWxmlPanel": true,
-    "scopeDataCheck": false,
-    "checkInvalidKey": true,
-    "checkSiteMap": true,
-    "uploadWithSourceMap": true,
-    "compileHotReLoad": false,
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
-    },
-    "useIsolateContext": true,
-    "useCompilerModule": true,
-    "userConfirmedUseCompilerModuleSwitch": false
-  },
   "appid": "wx3ae4dfecd97351ea",
-  "projectname": "doghead-advisor",
-  "libVersion": "3.2.6",
-  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
-  "condition": {},
-  "srcMiniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
+  "libVersion": "3.2.0",
   "packOptions": {
     "ignore": [],
     "include": []
   },
+  "setting": {
+    "coverView": true,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "enhance": true,
+    "showShadowRootInWxmlPanel": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "condition": {},
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
-  },
-  "description": "狗头军师 - AI 无厘头建议助手"
+  }
 }

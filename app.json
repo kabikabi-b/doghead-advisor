@@ -1,14 +1,27 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/result/result",
-    "pages/history/history"
+    "pages/home/home",
+    "pages/community/community",
+    "pages/leaderboard/leaderboard",
+    "pages/profile/profile"
   ],
   "window": {
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F5F5DC",
-    "navigationBarTitleText": "狗头军师",
-    "navigationBarTextStyle": "dark"
+    "navigationBarBackgroundColor": "#1a1a2e",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "狗狗军师",
+    "backgroundColor": "#1a1a2e",
+    "backgroundTextStyle": "light"
   },
-  "sitemapLocation": "sitemap.json"
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#FF8A00",
+    "backgroundColor": "#1a1a2e",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/home", "text": "首页", "iconPath": "images/tab-home.png", "selectedIconPath": "images/tab-home-active.png" },
+      { "pagePath": "pages/community/community", "text": "社群", "iconPath": "images/tab-community.png", "selectedIconPath": "images/tab-community-active.png" },
+      { "pagePath": "pages/leaderboard/leaderboard", "text": "排行榜", "iconPath": "images/tab-rank.png", "selectedIconPath": "images/tab-rank-active.png" },
+      { "pagePath": "pages/profile/profile", "text": "我的", "iconPath": "images/tab-profile.png", "selectedIconPath": "images/tab-profile-active.png" }
+    ]
+  }
 }

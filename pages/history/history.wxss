@@ -1,1 +1,130 @@
 /* pages/history/history.wxss */
+
+/* Container */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #F5F5DC 0%, #FFE4B5 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  padding: 30rpx;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10rpx);
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #5D4037;
+}
+
+/* History List */
+.history-list {
+  flex: 1;
+  padding: 24rpx;
+}
+
+.history-item {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(139, 69, 19, 0.08);
+}
+
+.history-item:active {
+  transform: scale(0.99);
+}
+
+.history-q {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12rpx;
+}
+
+.history-label {
+  display: inline-block;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: #8B4513;
+  padding: 6rpx 14rpx;
+  border-radius: 10rpx;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.history-label.answer {
+  background: #FF8A65;
+}
+
+.history-question {
+  font-size: 28rpx;
+  color: #5D4037;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.history-a {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12rpx;
+}
+
+.history-reply {
+  font-size: 26rpx;
+  color: #8D6E63;
+  line-height: 1.5;
+}
+
+.history-time {
+  font-size: 22rpx;
+  color: #BDBDBD;
+  text-align: right;
+  width: 100%;
+  display: block;
+}
+
+/* Empty State */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #5D4037;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #8D6E63;
+  margin-bottom: 40rpx;
+}
+
+.empty-btn {
+  padding: 24rpx 60rpx;
+  background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
+  border-radius: 40rpx;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.empty-btn:active {
+  transform: scale(0.95);
+}

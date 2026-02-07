@@ -1,2 +1,63 @@
 <!--pages/community/community.wxml-->
-<text>pages/community/community.wxml</text>
+<view class="container">
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view 
+      class="filter-item {{filter === 'latest' ? 'active' : ''}}" 
+      bindtap="onFilterTap" 
+      data-filter="latest"
+    >
+      最新
+    </view>
+    <view 
+      class="filter-item {{filter === 'hot' ? 'active' : ''}}" 
+      bindtap="onFilterTap" 
+      data-filter="hot"
+    >
+      最热
+    </view>
+  </view>
+
+  <!-- 问题列表 -->
+  <view class="question-list">
+    <block wx:if="{{questions.length > 0}}">
+      <view 
+        class="question-card" 
+        wx:for="{{questions}}" 
+        wx:key="_id"
+      >
+        <view class="question-header" bindtap="onQuestionTap" data-id="{{item._id}}">
+          <text class="question-text">{{item.question}}</text>
+          <text class="expand-icon">{{expandedId === item._id ? '收起' : '展开'}}</text>
+        </view>
+        
+        <view class="answer-section {{expandedId === item._id ? 'show' : 'hide'}}">
+          <text class="answer-text">{{item.reply}}</text>
+          
+          <view class="vote-bar">
+            <view class="vote-item" bindtap="onVote" data-type="question" data-id="{{item._id}}">
+              <text class="vote-icon">{{item.voted ? '❤️' : '🤍'}}</text>
+              <text class="vote-count">{{item.likes || 0}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{questions.length === 0 && !loading}}">
+      <text class="empty-icon">📭</text>
+      <text class="empty-text">暂无问题，快来提问吧！</text>
+    </view>
+    
+    <!-- 没有更多 -->
+    <view class="no-more" wx:if="{{!hasMore && questions.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+  </view>
+</view>

@@ -1,2 +1,47 @@
 <!--pages/index/index.wxml-->
-<text>pages/index/index.wxml</text>
+<view class="container">
+  <!-- Header -->
+  <view class="header">
+    <view class="logo-container">
+      <text class="logo">🐕</text>
+    </view>
+    <text class="title">狗头军师</text>
+    <text class="subtitle">今天有什么烦心事？</text>
+  </view>
+
+  <!-- Question Card -->
+  <view class="question-card">
+    <textarea 
+      class="input-field"
+      placeholder="输入你的问题..."
+      placeholder-class="placeholder"
+      maxlength="500"
+      cursor-spacing="20"
+      bindinput="onQuestionInput"
+      value="{{question}}"
+    ></textarea>
+  </view>
+
+  <!-- Generate Button -->
+  <view class="btn-container">
+    <button 
+      class="generate-btn {{loading ? 'disabled' : ''}}" 
+      bindtap="onGenerateTap"
+      disabled="{{loading || !question.trim()}}"
+    >
+      {{loading ? '生成中...' : '🔮 生成无厘头回复'}}
+    </button>
+  </view>
+
+  <!-- Sample Questions -->
+  <view class="sample-section" wx:if="{{sampleQuestions.length > 0}}">
+    <text class="sample-title">💬 热门问答</text>
+    <view class="sample-list">
+      <block wx:for="{{sampleQuestions}}" wx:key="index">
+        <view class="sample-item" bindtap="onSampleTap" data-question="{{item}}">
+          <text class="sample-q">{{item}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

@@ -1,2 +1,44 @@
 <!--pages/result/result.wxml-->
-<text>pages/result/result.wxml</text>
+<view class="container">
+  <!-- Header with Back -->
+  <view class="header">
+    <view class="back-btn" bindtap="onBackTap">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="header-title">狗头军师</text>
+  </view>
+
+  <!-- Question Card -->
+  <view class="card question-card">
+    <text class="card-label">Q</text>
+    <text class="card-content question">{{question}}</text>
+  </view>
+
+  <!-- Answer Card -->
+  <view class="card answer-card">
+    <text class="card-label answer">A</text>
+    <text class="card-content answer">{{reply}}</text>
+  </view>
+
+  <!-- Action Buttons -->
+  <view class="action-buttons">
+    <view class="action-btn copy-btn" bindtap="onCopyTap" data-content="{{reply}}">
+      <text class="action-icon">📋</text>
+      <text class="action-text">一键复制</text>
+    </view>
+    <view class="action-btn like-btn {{liked ? 'liked' : ''}}" bindtap="onLikeTap">
+      <text class="action-icon">{{liked ? '❤️' : '👍'}}</text>
+      <text class="action-text">{{liked ? '已赞' : '点赞'}}</text>
+    </view>
+  </view>
+
+  <!-- Ask Again Button -->
+  <view class="ask-again-btn" bindtap="onAskAgainTap">
+    <text>🔄 再问一个</text>
+  </view>
+
+  <!-- Toast -->
+  <view class="toast {{showToast ? 'show' : ''}}" wx:if="{{showToast}}">
+    <text class="toast-text">{{toastText}}</text>
+  </view>
+</view>

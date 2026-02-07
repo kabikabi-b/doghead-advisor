@@ -1,2 +1,34 @@
 <!--pages/history/history.wxml-->
-<text>pages/history/history.wxml</text>
+<view class="container">
+  <!-- Header -->
+  <view class="header">
+    <text class="header-title">📜 历史记录</text>
+  </view>
+
+  <!-- History List -->
+  <scroll-view class="history-list" scroll-y="true" wx:if="{{history.length > 0}}">
+    <block wx:for="{{history}}" wx:key="id">
+      <view class="history-item" bindtap="onItemTap" data-item="{{item}}">
+        <view class="history-q">
+          <text class="history-label">Q</text>
+          <text class="history-question">{{item.question}}</text>
+        </view>
+        <view class="history-a">
+          <text class="history-label answer">A</text>
+          <text class="history-reply">{{item.reply}}</text>
+        </view>
+        <text class="history-time">{{item.createTime}}</text>
+      </view>
+    </block>
+  </scroll-view>
+
+  <!-- Empty State -->
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">📭</text>
+    <text class="empty-text">还没有问答记录</text>
+    <text class="empty-hint">去问狗狗军师吧！</text>
+    <view class="empty-btn" bindtap="goToAsk">
+      <text>去提问</text>
+    </view>
+  </view>
+</view>

@@ -19,18 +19,6 @@ Page({
     }
   },
 
-  // 返回上一页
-  onBackTap() {
-    wx.navigateBack({
-      fail: () => {
-        // 如果没有上一页，直接跳转到首页
-        wx.reLaunch({
-          url: '/pages/index/index'
-        });
-      }
-    });
-  },
-
   // 复制回复
   onCopyTap(e) {
     const content = e.currentTarget.dataset.content;
@@ -57,10 +45,9 @@ Page({
     }
   },
 
-  // 再问一个
+  // 再问一个 - 使用 redirectTo 避免返回按钮
   onAskAgainTap() {
-    // 跳转到首页（带清空状态）
-    wx.reLaunch({
+    wx.redirectTo({
       url: '/pages/index/index'
     });
   },

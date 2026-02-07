@@ -12,7 +12,7 @@ exports.main = async (event, context) => {
   }
   
   try {
-    // 获取或创建用户
+    // 获取用户
     let user = await db.collection('users')
       .where({ openid: wxContext.OPENID })
       .get();
@@ -32,14 +32,24 @@ exports.main = async (event, context) => {
     
     const currentUser = user.data[0];
     
-    // 获取用户的所有问题用于计算统计
+    // 获取用户的所有问题
     const allQuestions = await db.collection('questions')
       .where({ openid: wxContext.OPENID })
       .get();
     
-    // 计算统计数据
+    // 实时计算统计
     const totalQuestions = allQuestions.data.length;
     const totalLikes = allQuestions.data.reduce((sum, q) => sum + (q.likes || 0), 0);
+    
+    // 更新 users 表的 stats
+    await db.collection('users').doc(currentUser._id).update({
+      data: {
+        stats: {
+          totalQuestions: totalQuestions,
+          totalLikes: totalLikes
+        }
+      }
+    });
     
     return {
       success: true,
@@ -67,7 +77,6 @@ exports.main = async (event, context) => {
   } catch (error) {
     console.error('获取用户资料失败:', error);
     
-    // 从本地存储获取备用数据
     const history = wx.getStorageSync('history') || [];
     return {
       success: true,
@@ -78,7 +87,7 @@ exports.main = async (event, context) => {
       },
       stats: {
         totalQuestions: history.length,
-        totalLikes: 0
+        totalLikes: history.reduce((sum, h) => sum + (h.likes || 0), 0)
       },
       myQuestions: history
     };

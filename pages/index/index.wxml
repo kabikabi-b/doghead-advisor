@@ -2,7 +2,7 @@
 <view class="container">
   <!-- Header -->
   <view class="header">
-    <image class="logo-image" src="/images/logo.png" mode="aspectFit"></image>
+    <image class="logo-image" src="/images/dog-avatar-new.jpg" mode="aspectFit"></image>
     <text class="title">狗头军师</text>
     <text class="subtitle">今天有什么烦心事？</text>
   </view>

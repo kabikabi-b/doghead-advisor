@@ -9,6 +9,19 @@
   margin-bottom: 32rpx;
 }
 
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.header-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  border: 3rpx solid #FF8A65;
+}
+
 .back-btn {
   display: flex;
   align-items: center;

@@ -6,7 +6,10 @@
       <text class="back-icon">‹</text>
       <text class="back-text">返回</text>
     </view>
-    <text class="header-title">🐕 狗头军师</text>
+    <view class="header-center">
+      <image class="header-avatar" src="/images/dog-avatar-new.jpg" mode="aspectFit"></image>
+      <text class="header-title">狗头军师</text>
+    </view>
     <view class="header-placeholder"></view>
   </view>
 
@@ -38,7 +41,7 @@
       class="btn-action like-btn {{liked ? 'liked' : ''}}" 
       bindtap="onLikeTap"
     >
-      {{liked ? '❤️ 已赞' : '👍 点赞'}}
+      {{liked ? '❤️' : '👍'}} {{likeCount}}
     </button>
   </view>
 

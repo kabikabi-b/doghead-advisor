@@ -52,3 +52,4 @@
 
 ### 2026-02-07
 - 发现 BUG-001: 社群页面因 questions collection 不存在而报错
+- 18:02 GMT+8 - James 直接指令 @KabiKabiYaaa_bot 立即修复 TASK-001 和 TASK-002

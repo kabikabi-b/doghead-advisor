@@ -8,15 +8,15 @@
   "window": {
     "navigationBarBackgroundColor": "#F5F5DC",
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "狗头军师",
+    "navigationBarTitleText": "狗狗军师",
     "backgroundColor": "#F5F5DC",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#8D6E63",
-    "selectedColor": "#FF8A65",
-    "backgroundColor": "#FFFFFF",
-    "borderStyle": "black",
+    "color": "#A0522D",
+    "selectedColor": "#D2691E",
+    "backgroundColor": "rgba(255, 255, 255, 0.9)",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",

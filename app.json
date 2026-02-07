@@ -3,7 +3,9 @@
     "pages/index/index",
     "pages/community/community",
     "pages/leaderboard/leaderboard",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/result/result",
+    "pages/history/history"
   ],
   "window": {
     "navigationBarBackgroundColor": "#F5F5DC",

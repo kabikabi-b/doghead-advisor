@@ -29,7 +29,7 @@
       bindtap="onGenerateTap"
       disabled="{{!question.trim() || loading}}"
     >
-      {{loading ? '思考中...' : '🔮 生成无厘头回复'}}
+      {{loading ? '思考中...' : '🔮 咨询狗哥'}}
     </button>
   </view>
 

@@ -127,3 +127,42 @@
   color: #8D6E63;
   font-size: 28rpx;
 }
+
+/* 错误状态 */
+.error-state {
+  text-align: center;
+  padding: 80rpx 40rpx;
+  background-color: #FFF8E1;
+  border-radius: 16rpx;
+  margin: 40rpx 0;
+}
+
+.error-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.error-text {
+  font-size: 32rpx;
+  color: #FF9800;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.error-hint {
+  font-size: 26rpx;
+  color: #8D6E63;
+  display: block;
+  margin-bottom: 30rpx;
+}
+
+.retry-btn {
+  background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 40rpx;
+  padding: 20rpx 60rpx;
+  font-size: 28rpx;
+}

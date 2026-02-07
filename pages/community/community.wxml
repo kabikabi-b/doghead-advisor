@@ -49,14 +49,22 @@
       <text>加载中...</text>
     </view>
     
+    <!-- 数据库集合错误状态 -->
+    <view class="error-state" wx:if="{{collectionError}}">
+      <text class="error-icon">⚠️</text>
+      <text class="error-text">数据库待初始化</text>
+      <text class="error-hint">请联系管理员初始化数据库集合</text>
+      <button class="retry-btn" bindtap="loadQuestions">重试</button>
+    </view>
+    
     <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{questions.length === 0 && !loading}}">
+    <view class="empty-state" wx:if="{{questions.length === 0 && !loading && !collectionError}}">
       <text class="empty-icon">📭</text>
-      <text class="empty-text">暂无问题，快来提问吧！</text>
+      <text class="empty-text">暂无问题，快来首页提问吧！</text>
     </view>
     
     <!-- 没有更多 -->
-    <view class="no-more" wx:if="{{!hasMore && questions.length > 0}}">
+    <view class="no-more" wx:if="{{!hasMore && questions.length > 0 && !loading}}">
       <text>没有更多了</text>
     </view>
   </view>

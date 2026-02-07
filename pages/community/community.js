@@ -48,10 +48,21 @@ Page({
       .catch(err => {
         console.error('加载问题失败:', err);
         this.setData({ loading: false });
-        wx.showToast({
-          title: '加载失败',
-          icon: 'none'
-        });
+        
+        // 检查是否是集合不存在的错误
+        if (err.errMsg && err.errMsg.includes('collection not exists')) {
+          // 显示空状态和提示
+          this.setData({ 
+            questions: [],
+            hasMore: false,
+            collectionError: true 
+          });
+        } else {
+          wx.showToast({
+            title: '加载失败，请重试',
+            icon: 'none'
+          });
+        }
       });
   },
 

@@ -1,13 +1,18 @@
 {
   "name": "doghead-advisor",
   "version": "1.0.0",
-  "description": "> 狗头军师微信小程序自动化测试",
+  "description": "狗头军师微信小程序自动化测试",
   "main": "app.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --config tests/jest.config.js",
+    "test:watch": "jest --config tests/jest.config.js --watch",
+    "test:coverage": "jest --config tests/jest.config.js --coverage",
+    "test:result": "jest --config tests/jest.config.js tests/e2e/result.spec.js",
+    "test:profile": "jest --config tests/jest.config.js tests/e2e/profile.spec.js",
+    "test:cloud": "jest --config tests/jest.config.js tests/e2e/cloudfunctions.spec.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +27,7 @@
   },
   "homepage": "https://github.com/kabikabi-b/doghead-advisor#readme",
   "devDependencies": {
+    "jest": "^30.2.0",
     "sharp": "^0.34.5"
   }
 }

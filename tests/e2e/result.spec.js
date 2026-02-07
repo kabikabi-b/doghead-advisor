@@ -7,10 +7,11 @@ const mockCallFunction = jest.fn();
 const mockCloudInit = jest.fn();
 const mockGetWXContext = jest.fn();
 
-jest.mock('wx-cloud', () => ({
+// 使用 jest.mock 创建 mock
+jest.mock('../../../node_modules/wx-cloud', () => ({
   init: mockCloudInit,
   getWXContext: mockGetWXContext
-}));
+}), { virtual: true });
 
 global.wx = {
   cloud: {

@@ -158,6 +158,12 @@
   margin-bottom: 30rpx;
 }
 
+.error-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+}
+
 .retry-btn {
   background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
   color: #FFFFFF;

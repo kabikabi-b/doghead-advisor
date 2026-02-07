@@ -1,5 +1,6 @@
 // pages/community/community.js
-// 注意：微信小程序的 Page 函数会在运行时自动注入
+
+const db = require('../../utils/db-init.js');
 
 Page({
   data: {
@@ -7,7 +8,9 @@ Page({
     questions: [],
     page: 1,
     loading: false,
-    hasMore: true
+    hasMore: true,
+    collectionError: false,
+    collectionNotReady: []
   },
 
   onLoad() {
@@ -20,8 +23,85 @@ Page({
     }
   },
 
+  /**
+   * 检查数据库集合是否就绪
+   */
+  async checkDatabase() {
+    try {
+      const results = await db.checkCollections();
+      const notReady = db.getNotReadyCollections(results);
+      
+      if (notReady.length > 0) {
+        this.setData({ 
+          collectionError: true,
+          collectionNotReady: notReady
+        });
+        return false;
+      }
+      
+      this.setData({ 
+        collectionError: false,
+        collectionNotReady: []
+      });
+      return true;
+    } catch (error) {
+      console.error('检查数据库失败:', error);
+      return false;
+    }
+  },
+
+  /**
+   * 初始化数据库集合
+   */
+  async initDatabase() {
+    wx.showLoading({ title: '初始化中...' });
+    
+    try {
+      const results = await db.initDatabase();
+      const notReady = db.getNotReadyCollections(results);
+      
+      wx.hideLoading();
+      
+      if (notReady.length === 0) {
+        this.setData({ 
+          collectionError: false,
+          collectionNotReady: []
+        });
+        wx.showToast({ title: '初始化成功!', icon: 'success' });
+        // 重新加载数据
+        this.loadQuestions();
+      } else {
+        this.setData({ 
+          collectionError: true,
+          collectionNotReady: notReady
+        });
+        wx.showModal({
+          title: '部分集合初始化失败',
+          content: `以下集合仍有问题: ${notReady.join(', ')}`,
+          showCancel: false,
+          confirmText: '知道了'
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('初始化数据库失败:', error);
+      wx.showToast({
+        title: '初始化失败',
+        icon: 'none'
+      });
+    }
+  },
+
   // 加载问题列表
   loadQuestions() {
+    // 如果数据库有问题，先检查
+    if (this.data.collectionError) {
+      const isReady = this.checkDatabase();
+      if (!isReady) {
+        return; // 等待用户初始化
+      }
+    }
+    
     if (this.data.loading || !this.data.hasMore) return;
 
     this.setData({ loading: true });

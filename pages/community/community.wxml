@@ -53,8 +53,10 @@
     <view class="error-state" wx:if="{{collectionError}}">
       <text class="error-icon">⚠️</text>
       <text class="error-text">数据库待初始化</text>
-      <text class="error-hint">请联系管理员初始化数据库集合</text>
-      <button class="retry-btn" bindtap="loadQuestions">重试</button>
+      <text class="error-hint">需要初始化以下集合: {{collectionNotReady.join(', ')}}</text>
+      <view class="error-actions">
+        <button class="retry-btn" bindtap="initDatabase">立即初始化</button>
+      </view>
     </view>
     
     <!-- 空状态 -->

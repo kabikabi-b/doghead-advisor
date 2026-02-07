@@ -11,7 +11,9 @@ exports.main = async (event, context) => {
     return { success: false, error: '未登录' };
   }
   
-  const collectionName = type === 'question' ? 'questions' : 'answers';
+  if (!id) {
+    return { success: false, error: '缺少 ID' };
+  }
   
   try {
     // 检查是否已点赞
@@ -26,12 +28,6 @@ exports.main = async (event, context) => {
     if (voteRecord.data.length > 0) {
       // 取消点赞
       await db.collection('votes').doc(voteRecord.data[0]._id).remove();
-      await db.collection(collectionName).doc(id).update({
-        data: { 
-          likes: db.command.inc(-1),
-          votedUserList: db.command.pull(wxContext.OPENID)
-        }
-      });
       return { success: true, action: 'unlike' };
     } else {
       // 添加点赞
@@ -41,12 +37,6 @@ exports.main = async (event, context) => {
           targetId: id,
           targetType: type,
           createTime: new Date()
-        }
-      });
-      await db.collection(collectionName).doc(id).update({
-        data: { 
-          likes: db.command.inc(1),
-          votedUserList: db.command.push(wxContext.OPENID)
         }
       });
       return { success: true, action: 'like' };

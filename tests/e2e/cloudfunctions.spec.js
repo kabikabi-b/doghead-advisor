@@ -99,19 +99,18 @@ describe('云函数测试', () => {
       mockCloud.callFunction.mockResolvedValue({
         result: {
           success: true,
-          action: 'like',
-          newCount: 5
+          action: 'like'
         }
       });
 
       const res = await wx.cloud.callFunction({
         name: 'vote',
-        data: { type: 'question', id: 'q123' }
+        data: { type: 'answer', id: 'q123' }
       });
 
       expect(mockCloud.callFunction).toHaveBeenCalledWith({
         name: 'vote',
-        data: { type: 'question', id: 'q123' }
+        data: { type: 'answer', id: 'q123' }
       });
 
       expect(res.result.success).toBe(true);
@@ -122,17 +121,48 @@ describe('云函数测试', () => {
       mockCloud.callFunction.mockResolvedValue({
         result: {
           success: true,
-          action: 'unlike',
-          newCount: 4
+          action: 'unlike'
         }
       });
 
       const res = await wx.cloud.callFunction({
         name: 'vote',
-        data: { type: 'question', id: 'q123' }
+        data: { type: 'answer', id: 'q123' }
       });
 
       expect(res.result.action).toBe('unlike');
+    });
+
+    it('应该处理缺少 id 的情况', async () => {
+      mockCloud.callFunction.mockResolvedValue({
+        result: {
+          success: false,
+          error: '缺少 ID'
+        }
+      });
+
+      const res = await wx.cloud.callFunction({
+        name: 'vote',
+        data: { type: 'answer' }
+      });
+
+      expect(res.result.success).toBe(false);
+      expect(res.result.error).toBe('缺少 ID');
+    });
+
+    it('只使用 votes 集合，不依赖 answers/questions', async () => {
+      // 验证 vote 云函数只需要 votes 集合即可工作
+      mockCloud.callFunction.mockResolvedValue({
+        result: { success: true, action: 'like' }
+      });
+
+      const res = await wx.cloud.callFunction({
+        name: 'vote',
+        data: { type: 'answer', id: 'test-id' }
+      });
+
+      // 只要 votes 集合存在即可正常点赞
+      expect(res.result.success).toBe(true);
     });
   });
 

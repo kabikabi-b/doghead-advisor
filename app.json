@@ -1,8 +1,9 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/result/result",
-    "pages/history/history"
+    "pages/community/community",
+    "pages/leaderboard/leaderboard",
+    "pages/profile/profile"
   ],
   "window": {
     "navigationBarBackgroundColor": "#F5F5DC",
@@ -10,6 +11,38 @@
     "navigationBarTitleText": "狗头军师",
     "backgroundColor": "#F5F5DC",
     "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8D6E63",
+    "selectedColor": "#FF8A65",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/community/community",
+        "text": "社群",
+        "iconPath": "images/tab-community.png",
+        "selectedIconPath": "images/tab-community-active.png"
+      },
+      {
+        "pagePath": "pages/leaderboard/leaderboard",
+        "text": "排行榜",
+        "iconPath": "images/tab-rank.png",
+        "selectedIconPath": "images/tab-rank-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tab-profile.png",
+        "selectedIconPath": "images/tab-profile-active.png"
+      }
+    ]
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2"

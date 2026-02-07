@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>狗头军师 - 预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F5F5DC 0%, #FFF8E7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            background: #fff;
+            border-radius: 40px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .notch {
+            width: 150px;
+            height: 30px;
+            background: #000;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 20px 20px;
+            z-index: 100;
+        }
+        
+        .status-bar {
+            height: 44px;
+            background: #F5F5DC;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: #5D4037;
+            padding-top: 10px;
+        }
+        
+        .page {
+            padding: 20px;
+            min-height: calc(100vh - 88px);
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* 首页样式 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #5D4037;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: #8D6E63;
+        }
+        
+        .question-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(93, 64, 55, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .input-label {
+            font-size: 14px;
+            color: #5D4037;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .question-input {
+            width: 100%;
+            height: 100px;
+            border: 2px solid #E0D5CF;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .question-input:focus {
+            border-color: #FF8A65;
+        }
+        
+        .tone-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .tone-btn {
+            padding: 12px 8px;
+            border: 2px solid #E0D5CF;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fff;
+        }
+        
+        .tone-btn:hover, .tone-btn.active {
+            border-color: #FF8A65;
+            background: #FFF3F0;
+        }
+        
+        .tone-btn .icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .tone-btn .label {
+            font-size: 11px;
+            color: #5D4037;
+            font-weight: 500;
+        }
+        
+        .examples-title {
+            font-size: 14px;
+            color: #8D6E63;
+            margin-bottom: 12px;
+        }
+        
+        .example-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .example-tag {
+            background: #F5F5DC;
+            color: #5D4037;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .example-tag:hover {
+            background: #FF8A65;
+            color: #fff;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: transform 0.2s;
+        }
+        
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .history-fab {
+            position: fixed;
+            bottom: 30px;
+            right: calc(50% - 200px + 20px);
+            width: 56px;
+            height: 56px;
+            background: #5D4037;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(93, 64, 55, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .history-fab:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 结果页样式 */
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 16px;
+            color: #5D4037;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .result-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(93, 64, 55, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .question-label {
+            font-size: 14px;
+            color: #8D6E63;
+            margin-bottom: 8px;
+        }
+        
+        .question-text {
+            font-size: 16px;
+            color: #5D4037;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #E0D5CF;
+        }
+        
+        .answer-section {
+            background: linear-gradient(135deg, #FFF8E7 0%, #F5F5DC 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .answer-label {
+            font-size: 14px;
+            color: #FF8A65;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .answer-text {
+            font-size: 18px;
+            color: #5D4037;
+            line-height: 1.6;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .action-btn.primary {
+            background: #FF8A65;
+            color: #fff;
+            border: none;
+        }
+        
+        .action-btn.secondary {
+            background: #fff;
+            color: #5D4037;
+            border: 2px solid #E0D5CF;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .ask-again-btn {
+            width: 100%;
+            padding: 16px;
+            background: #F5F5DC;
+            color: #5D4037;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        /* 历史页样式 */
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .history-title {
+            font-size: 20px;
+            color: #5D4037;
+        }
+        
+        .clear-btn {
+            font-size: 14px;
+            color: #8D6E63;
+            cursor: pointer;
+        }
+        
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .history-item {
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .history-item:active {
+            transform: scale(0.98);
+        }
+        
+        .history-item-question {
+            font-size: 15px;
+            color: #5D4037;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .history-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8D6E63;
+        }
+        
+        .history-item-like {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 375px;
+            background: #fff;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid #F0E5DE;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: #8D6E63;
+            cursor: pointer;
+            padding: 8px 20px;
+        }
+        
+        .nav-item.active {
+            color: #FF8A65;
+        }
+        
+        .nav-item .icon {
+            font-size: 24px;
+        }
+        
+        .nav-item .label {
+            font-size: 11px;
+        }
+        
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .toast.show {
+            display: block;
+            animation: fadeInOut 2s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
+        
+        .page-indicator {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        
+        .page-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #E0D5CF;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .page-dot.active {
+            background: #FF8A65;
+            width: 24px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="notch"></div>
+        
+        <!-- 状态栏 -->
+        <div class="status-bar">狗头军师</div>
+        
+        <!-- 首页 -->
+        <div class="page active" id="page-home">
+            <div class="header">
+                <h1>🐕 狗头军师</h1>
+                <p>你的无厘头AI顾问</p>
+            </div>
+            
+            <div class="question-card">
+                <div class="input-label">请输入你的问题</div>
+                <textarea class="question-input" placeholder="他说了让我不爽的话..."></textarea>
+                
+                <div class="tone-selector">
+                    <div class="tone-btn active" data-tone="humor">
+                        <div class="icon">🧀</div>
+                        <div class="label">幽默</div>
+                    </div>
+                    <div class="tone-btn" data-tone="sharp">
+                        <div class="icon">🔪</div>
+                        <div class="label">犀利</div>
+                    </div>
+                    <div class="tone-btn" data-tone="savage">
+                        <div class="icon">🤢</div>
+                        <div class="label">损人</div>
+                    </div>
+                    <div class="tone-btn" data-tone="elegant">
+                        <div class="icon">🎩</div>
+                        <div class="label">优雅</div>
+                    </div>
+                </div>
+                
+                <div class="examples-title">试试这样问</div>
+                <div class="example-tags">
+                    <span class="example-tag">今天运气怎么样？</span>
+                    <span class="example-tag">老板不给涨工资</span>
+                    <span class="example-tag">如何追到女神？</span>
+                    <span class="example-tag">女朋友生气了</span>
+                    <span class="example-tag">今天吃什么？</span>
+                </div>
+            </div>
+            
+            <button class="generate-btn">🔮 生成无厘头回复</button>
+        </div>
+        
+        <!-- 结果页 -->
+        <div class="page" id="page-result">
+            <div class="back-btn">← 返回</div>
+            
+            <div class="result-card">
+                <div class="question-label">你问的是</div>
+                <div class="question-text">他说了让我不爽的话，我该怎么怼回去？</div>
+                
+                <div class="answer-section">
+                    <div class="answer-label">💡 狗头军师建议</div>
+                    <div class="answer-text">简单！你就回他："不好意思，我今天耳屎太多，没听清你在说什么，能再说一遍吗？" 😏</div>
+                </div>
+                
+                <div class="action-btns">
+                    <button class="action-btn secondary">📋 复制</button>
+                    <button class="action-btn secondary">👍 点赞</button>
+                </div>
+                
+                <button class="ask-again-btn">🔄 再问一个</button>
+            </div>
+        </div>
+        
+        <!-- 历史页 -->
+        <div class="page" id="page-history">
+            <div class="history-header">
+                <div class="history-title">历史记录</div>
+                <div class="clear-btn">清空</div>
+            </div>
+            
+            <div class="history-list">
+                <div class="history-item">
+                    <div class="history-item-question">他说了让我不爽的话，怎么怼回去？</div>
+                    <div class="history-item-meta">
+                        <span>今天</span>
+                        <span class="history-item-like">👍 12</span>
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-question">老板不给涨工资怎么办？</div>
+                    <div class="history-item-meta">
+                        <span>昨天</span>
+                        <span class="history-item-like">👍 8</span>
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-question">如何追到喜欢的女生？</div>
+                    <div class="history-item-meta">
+                        <span>前天</span>
+                        <span class="history-item-like">👍 15</span>
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-question">今天运气怎么样？</div>
+                    <div class="history-item-meta">
+                        <span>2天前</span>
+                        <span class="history-item-like">👍 5</span>
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-question">女朋友生气了怎么哄？</div>
+                    <div class="history-item-meta">
+                        <span>3天前</span>
+                        <span class="history-item-like">👍 20</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 页面指示器 -->
+        <div class="page-indicator">
+            <div class="page-dot active" data-page="home"></div>
+            <div class="page-dot" data-page="result"></div>
+            <div class="page-dot" data-page="history"></div>
+        </div>
+        
+        <!-- 底部导航（历史页显示） -->
+        <div class="nav-bar" id="nav-bar" style="display: none;">
+            <div class="nav-item" data-page="home">
+                <div class="icon">🏠</div>
+                <div class="label">首页</div>
+            </div>
+            <div class="nav-item active" data-page="history">
+                <div class="icon">📜</div>
+                <div class="label">历史</div>
+            </div>
+        </div>
+        
+        <!-- 历史按钮（非历史页显示） -->
+        <div class="history-fab" id="history-fab">📜</div>
+    </div>
+    
+    <div class="toast" id="toast">已复制到剪贴板</div>
+    
+    <script>
+        const pages = ['home', 'result', 'history'];
+        let currentPage = 'home';
+        
+        // 页面切换
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${pageName}`).classList.add('active');
+            
+            document.querySelectorAll('.page-dot').forEach(d => {
+                d.classList.toggle('active', d.dataset.page === pageName);
+            });
+            
+            // 历史页显示底部导航，隐藏历史按钮
+            if (pageName === 'history') {
+                document.getElementById('nav-bar').style.display = 'flex';
+                document.getElementById('history-fab').style.display = 'none';
+            } else {
+                document.getElementById('nav-bar').style.display = 'none';
+                document.getElementById('history-fab').style.display = 'flex';
+            }
+            
+            currentPage = pageName;
+        }
+        
+        // 页面指示器点击
+        document.querySelectorAll('.page-dot').forEach(dot => {
+            dot.addEventListener('click', () => showPage(dot.dataset.page));
+        });
+        
+        // 底部导航点击
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                showPage(item.dataset.page);
+            });
+        });
+        
+        // 历史按钮点击
+        document.getElementById('history-fab').addEventListener('click', () => showPage('history'));
+        
+        // 返回按钮点击
+        document.querySelector('.back-btn').addEventListener('click', () => showPage('home'));
+        
+        // 再问一个按钮点击
+        document.querySelector('.ask-again-btn').addEventListener('click', () => {
+            document.querySelector('.question-input').value = '';
+            showPage('home');
+        });
+        
+        // 语气选择
+        document.querySelectorAll('.tone-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        
+        // 示例标签点击
+        document.querySelectorAll('.example-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                document.querySelector('.question-input').value = tag.textContent;
+                showPage('home');
+            });
+        });
+        
+        // 复制按钮点击
+        document.querySelector('.action-btn.secondary').addEventListener('click', function() {
+            const toast = document.getElementById('toast');
+            toast.textContent = '已复制到剪贴板';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        });
+        
+        // 历史项点击
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.addEventListener('click', () => showPage('result'));
+        });
+        
+        // 生成按钮点击
+        document.querySelector('.generate-btn').addEventListener('click', () => {
+            const question = document.querySelector('.question-input').value.trim();
+            if (question) {
+                showPage('result');
+            } else {
+                const toast = document.getElementById('toast');
+                toast.textContent = '请输入问题';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            }
+        });
+        
+        // 键盘聚焦时隐藏历史按钮
+        document.querySelector('.question-input').addEventListener('focus', () => {
+            document.getElementById('history-fab').style.display = 'none';
+        });
+        
+        document.querySelector('.question-input').addEventListener('blur', () => {
+            document.getElementById('history-fab').style.display = 'flex';
+        });
+        
+        console.log('🐕 狗头军师预览已加载');
+    </script>
+</body>
+</html>

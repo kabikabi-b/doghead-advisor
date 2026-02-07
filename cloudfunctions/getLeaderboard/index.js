@@ -8,45 +8,93 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   
   try {
-    // 获取排行榜数据
-    const users = await db.collection('users')
-      .orderBy(filter, 'desc')
-      .limit(100)
-      .get();
-    
-    // 获取当前用户排名
+    let rankList = [];
     let currentUserRank = null;
-    if (wxContext.OPENID) {
-      const currentUser = await db.collection('users')
-        .where({ openid: wxContext.OPENID })
+    
+    if (filter === 'likes') {
+      // 按点赞数获取问题列表
+      const questions = await db.collection('questions')
+        .orderBy('likes', 'desc')
+        .limit(50)
         .get();
       
-      if (currentUser.data.length > 0) {
-        const user = currentUser.data[0];
-        // 计算排名
-        const higherCount = await db.collection('users')
-          .where({
-            [filter]: db.command.gt(user.stats ? user.stats[filter] || 0 : 0)
-          })
-          .count();
+      rankList = questions.data.map((q, index) => ({
+        id: q._id,
+        question: q.question,
+        likes: q.likes || 0,
+        score: q.likes || 0,
+        rank: index + 1
+      }));
+      
+      // 获取当前用户的问题中最高点赞排名
+      if (wxContext.OPENID) {
+        const myQuestions = await db.collection('questions')
+          .where({ openid: wxContext.OPENID })
+          .get();
         
+        if (myQuestions.data.length > 0) {
+          // 找到最高点赞的问题
+          const topQuestion = myQuestions.data.reduce((max, q) => 
+            (q.likes || 0) > (max.likes || 0) ? q : max
+          , { likes: 0 });
+          
+          // 计算排名
+          const higherCount = await db.collection('questions')
+            .where({ likes: db.command.gt(topQuestion.likes || 0) })
+            .count();
+          
+          currentUserRank = {
+            rank: higherCount.total + 1,
+            likes: topQuestion.likes || 0,
+            question: topQuestion.question
+          };
+        }
+      }
+    } else {
+      // 按提问数获取（模拟）
+      const questions = await db.collection('questions')
+        .orderBy('createTime', 'desc')
+        .limit(50)
+        .get();
+      
+      // 按用户聚合
+      const userMap = {};
+      questions.data.forEach(q => {
+        if (!userMap[q.openid]) {
+          userMap[q.openid] = {
+            id: q.openid,
+            questionCount: 0,
+            questions: []
+          };
+        }
+        userMap[q.openid].questionCount++;
+        userMap[q.openid].questions.push(q.question);
+      });
+      
+      rankList = Object.values(userMap)
+        .sort((a, b) => b.questionCount - a.questionCount)
+        .slice(0, 50)
+        .map((u, index) => ({
+          id: u.id,
+          question: u.questions[0], // 显示第一个问题
+          questionCount: u.questionCount,
+          score: u.questionCount,
+          rank: index + 1
+        }));
+      
+      // 当前用户排名
+      if (wxContext.OPENID && userMap[wxContext.OPENID]) {
+        const myIndex = rankList.findIndex(u => u.id === wxContext.OPENID);
         currentUserRank = {
-          ...user,
-          rank: higherCount.total + 1
+          rank: myIndex + 1,
+          questionCount: userMap[wxContext.OPENID].questionCount
         };
       }
     }
     
     return {
       success: true,
-      list: users.data.map((u, index) => ({
-        id: u._id,
-        name: u.nickName || '匿名用户',
-        avatar: u.avatarUrl || '🐕',
-        likes: u.stats?.totalLikes || 0,
-        guguRate: u.stats?.guguRate || 0,
-        score: u.stats?.[filter] || 0
-      })),
+      list: rankList,
       currentUserRank
     };
   } catch (error) {
@@ -54,14 +102,7 @@ exports.main = async (event, context) => {
     return {
       success: false,
       error: error.message,
-      // 返回模拟数据用于演示
-      list: [
-        { id: '1', name: '怼神降临', avatar: '🦁', likes: 1234, guguRate: 99, score: 1234 },
-        { id: '2', name: '机智小狐狸', avatar: '🦊', likes: 987, guguRate: 85, score: 987 },
-        { id: '3', name: '快乐小狗', avatar: '🐕', likes: 856, guguRate: 72, score: 856 },
-        { id: '4', name: '佛系青年', avatar: '🧘', likes: 654, guguRate: 60, score: 654 },
-        { id: '5', name: '乐观向上', avatar: '🌟', likes: 543, guguRate: 45, score: 543 }
-      ],
+      list: [],
       currentUserRank: null
     };
   }

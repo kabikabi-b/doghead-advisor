@@ -10,11 +10,11 @@
       最多点赞
     </view>
     <view 
-      class="filter-item {{filter === 'guguRate' ? 'active' : ''}}" 
+      class="filter-item {{filter === 'questions' ? 'active' : ''}}" 
       bindtap="onFilterTap" 
-      data-filter="guguRate"
+      data-filter="questions"
     >
-      最高咕咕率
+      最多提问
     </view>
   </view>
 
@@ -38,8 +38,9 @@
             <text class="name">{{item.name}}</text>
             <view class="stats">
               <text class="stat-item">👍 {{item.likes}}</text>
-              <text class="stat-item">🐦 {{item.guguRate}}%</text>
             </view>
+            <!-- 显示问题 -->
+            <text class="question-text" wx:if="{{item.question}}">{{item.question}}</text>
           </view>
         </view>
         

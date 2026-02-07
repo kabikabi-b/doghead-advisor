@@ -4,8 +4,7 @@ Page({
     userInfo: null,
     stats: {
       totalQuestions: 0,
-      totalLikes: 0,
-      guguRate: 0
+      totalLikes: 0
     },
     myQuestions: [],
     loading: false
@@ -46,8 +45,7 @@ Page({
           userInfo,
           stats: {
             totalQuestions: history.length,
-            totalLikes: 0,
-            guguRate: 0
+            totalLikes: 0
           },
           loading: false
         });
@@ -97,8 +95,7 @@ Page({
           this.setData({
             stats: {
               totalQuestions: 0,
-              totalLikes: 0,
-              guguRate: 0
+              totalLikes: 0
             },
             myQuestions: []
           });
@@ -108,6 +105,13 @@ Page({
           });
         }
       }
+    });
+  },
+
+  // 跳转到首页
+  goToIndex() {
+    wx.switchTab({
+      url: '/pages/index/index'
     });
   },
 

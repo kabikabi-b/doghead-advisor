@@ -12,7 +12,7 @@ exports.main = async (event, context) => {
   }
   
   try {
-    // 获取或创建用户
+    // 获取用户
     let user = await db.collection('users')
       .where({ openid: wxContext.OPENID })
       .get();
@@ -22,14 +22,9 @@ exports.main = async (event, context) => {
       await db.collection('users').add({
         data: {
           openid: wxContext.OPENID,
-          nickName: '新用户' + wxContext.OPENID.slice(-4),
+          nickName: '新用户',
           avatarUrl: '🐕',
-          createTime: new Date(),
-          stats: {
-            totalQuestions: 0,
-            totalLikes: 0,
-            guguRate: 0
-          }
+          createTime: new Date()
         }
       });
       user = await db.collection('users').where({ openid: wxContext.OPENID }).get();
@@ -37,38 +32,51 @@ exports.main = async (event, context) => {
     
     const currentUser = user.data[0];
     
-    // 获取用户的问题
-    const questions = await db.collection('questions')
+    // 获取用户的所有问题
+    const allQuestions = await db.collection('questions')
       .where({ openid: wxContext.OPENID })
-      .orderBy('createTime', 'desc')
-      .limit(20)
       .get();
+    
+    // 实时计算统计
+    const totalQuestions = allQuestions.data.length;
+    const totalLikes = allQuestions.data.reduce((sum, q) => sum + (q.likes || 0), 0);
+    
+    // 更新 users 表的 stats
+    await db.collection('users').doc(currentUser._id).update({
+      data: {
+        stats: {
+          totalQuestions: totalQuestions,
+          totalLikes: totalLikes
+        }
+      }
+    });
     
     return {
       success: true,
       userInfo: {
         _id: currentUser._id,
-        nickName: currentUser.nickName,
-        avatarUrl: currentUser.avatarUrl,
-        createTime: currentUser.createTime?.toLocaleString('zh-CN')
+        nickName: currentUser.nickName || '新用户',
+        avatarUrl: currentUser.avatarUrl || '🐕',
+        createTime: currentUser.createTime?.toLocaleString('zh-CN') || new Date().toLocaleString('zh-CN')
       },
-      stats: currentUser.stats || {
-        totalQuestions: 0,
-        totalLikes: 0,
-        guguRate: 0
+      stats: {
+        totalQuestions: totalQuestions,
+        totalLikes: totalLikes
       },
-      myQuestions: questions.data.map(q => ({
-        id: q._id,
-        question: q.question,
-        reply: q.reply,
-        createTime: q.createTime?.toLocaleString('zh-CN') || '',
-        likes: q.likes || 0
-      }))
+      myQuestions: allQuestions.data
+        .sort((a, b) => new Date(b.createTime) - new Date(a.createTime))
+        .slice(0, 20)
+        .map(q => ({
+          id: q._id,
+          question: q.question,
+          reply: q.reply,
+          createTime: q.createTime?.toLocaleString('zh-CN') || '',
+          likes: q.likes || 0
+        }))
     };
   } catch (error) {
     console.error('获取用户资料失败:', error);
     
-    // 从本地存储获取备用数据
     const history = wx.getStorageSync('history') || [];
     return {
       success: true,
@@ -79,8 +87,7 @@ exports.main = async (event, context) => {
       },
       stats: {
         totalQuestions: history.length,
-        totalLikes: 0,
-        guguRate: 0
+        totalLikes: history.reduce((sum, h) => sum + (h.likes || 0), 0)
       },
       myQuestions: history
     };

@@ -22,10 +22,6 @@
       <text class="stat-num">{{stats.totalLikes || 0}}</text>
       <text class="stat-label">获得点赞</text>
     </view>
-    <view class="stat-item">
-      <text class="stat-num">{{stats.guguRate || 0}}%</text>
-      <text class="stat-label">咕咕率</text>
-    </view>
   </view>
 
   <!-- 历史提问 -->

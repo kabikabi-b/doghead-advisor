@@ -5,7 +5,7 @@
     <view class="back-btn" bindtap="onBackTap">
       <text class="back-icon">←</text>
     </view>
-    <text class="header-title">狗头军师</text>
+    <text class="header-title">狗狗军师</text>
   </view>
 
   <!-- Question Card -->

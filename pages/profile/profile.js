@@ -114,7 +114,7 @@ Page({
   // 分享
   onShareAppMessage() {
     return {
-      title: '狗头军师 - 无厘头AI回复',
+      title: '狗狗军师 - 无厘头AI回复',
       path: '/pages/index/index'
     };
   },

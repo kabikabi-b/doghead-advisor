@@ -27,7 +27,13 @@ const ENV_CONFIG = {
   }
 };
 
-const FUNCTIONS = ['generateReply', 'getLeaderboard', 'vote', 'getUserProfile'];
+const FUNCTIONS = [
+  'generateReply', 
+  'getLeaderboard', 
+  'vote', 
+  'getUserProfile',
+  'initDb'  // 数据库初始化云函数
+];
 const COLLECTIONS = ['questions', 'votes', 'users'];
 
 /**

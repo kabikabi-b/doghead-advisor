@@ -87,7 +87,7 @@ function checkCloudFunctions() {
   console.log('\n☁️ 检查云函数...');
   
   const checks = [];
-  const cloudfunctions = ['generateReply', 'getLeaderboard', 'vote', 'getUserProfile'];
+  const cloudfunctions = ['generateReply', 'getLeaderboard', 'vote', 'getUserProfile', 'initDb'];
   
   for (const func of cloudfunctions) {
     const funcPath = `cloudfunctions/${func}`;

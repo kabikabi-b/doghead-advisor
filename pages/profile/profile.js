@@ -35,35 +35,41 @@ Page({
           myQuestions: res.result.myQuestions,
           loading: false
         });
+        // 保存到本地
+        wx.setStorageSync('userInfo', res.result.userInfo);
       }
     }).catch(() => {
-      // 使用本地存储的数据
-      const userInfo = wx.getStorageSync('userInfo');
-      const history = wx.getStorageSync('history') || [];
-      
-      if (userInfo) {
-        this.setData({ 
-          userInfo,
-          stats: {
-            totalQuestions: history.length,
-            totalLikes: 0,
-            guguRate: 0
-          },
-          loading: false
-        });
-      } else {
-        // 创建默认用户信息
-        const defaultUser = {
-          nickName: '新用户',
-          avatarUrl: '🐕',
-          createTime: new Date().toLocaleString('zh-CN')
-        };
-        wx.setStorageSync('userInfo', defaultUser);
-        this.setData({
-          userInfo: defaultUser,
-          loading: false
-        });
-      }
+      // 使用微信登录信息
+      wx.getUserProfile({
+        desc: '用于展示用户信息',
+        success: (userRes) => {
+          const userInfo = {
+            nickName: userRes.userInfo.nickName,
+            avatarUrl: userRes.userInfo.avatarUrl,
+            createTime: new Date().toLocaleString('zh-CN')
+          };
+          wx.setStorageSync('userInfo', userInfo);
+          this.setData({
+            userInfo,
+            stats: { totalQuestions: 0, totalLikes: 0 },
+            loading: false
+          });
+        },
+        fail: () => {
+          // 创建默认用户信息
+          const defaultUser = {
+            nickName: '狗狗用户',
+            avatarUrl: '/images/dog-avatar/png/westie-cute.png',
+            createTime: new Date().toLocaleString('zh-CN')
+          };
+          wx.setStorageSync('userInfo', defaultUser);
+          this.setData({
+            userInfo: defaultUser,
+            stats: { totalQuestions: 0, totalLikes: 0 },
+            loading: false
+          });
+        }
+      });
     });
   },
 
@@ -83,6 +89,13 @@ Page({
   onHistoryTap() {
     wx.navigateTo({
       url: '/pages/history/history'
+    });
+  },
+
+  // 跳转到首页提问
+  goToIndex() {
+    wx.switchTab({
+      url: '/pages/index/index'
     });
   },
 

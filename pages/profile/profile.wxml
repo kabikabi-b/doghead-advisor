@@ -3,11 +3,15 @@
   <!-- 用户信息 -->
   <view class="user-card">
     <view class="avatar-section">
-      <text class="avatar">{{userInfo.avatarUrl || '🐕'}}</text>
+      <image 
+        class="avatar" 
+        src="{{userInfo.avatarUrl || '/images/dog-avatar/png/westie-cute.png'}}" 
+        mode="aspectFill"
+      />
     </view>
     <view class="info-section">
-      <text class="nickname">{{userInfo.nickName || '新用户'}}</text>
-      <text class="user-id">ID: {{userInfo._id || '----'}}</text>
+      <text class="nickname">{{userInfo.nickName || '狗狗用户'}}</text>
+      <text class="user-id">ID: {{userInfo._id || userInfo.openid || '----'}}</text>
       <text class="join-time">加入时间: {{userInfo.createTime || '----'}}</text>
     </view>
   </view>
@@ -21,10 +25,6 @@
     <view class="stat-item">
       <text class="stat-num">{{stats.totalLikes || 0}}</text>
       <text class="stat-label">获得点赞</text>
-    </view>
-    <view class="stat-item">
-      <text class="stat-num">{{stats.guguRate || 0}}%</text>
-      <text class="stat-label">咕咕率</text>
     </view>
   </view>
 

@@ -1,5 +1,6 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk');
+const axios = require('axios');
 
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
@@ -48,23 +49,20 @@ async function callMiniMaxAPI(question) {
   }
 
   try {
-    const response = await cloud.openapi.request({
-      method: 'POST',
-      url: MINIMAX_API_URL,
-      header: {
+    const response = await axios.post(MINIMAX_API_URL, {
+      model: 'abab6.5s-chat',
+      messages: [
+        {
+          role: 'user',
+          content: NONSENSICAL_PROMPT.replace('{{question}}', question)
+        }
+      ],
+      temperature: 0.9,
+      max_tokens: 500
+    }, {
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
-      },
-      body: {
-        model: 'abab6.5s-chat', // MiniMax 聊天模型
-        messages: [
-          {
-            role: 'user',
-            content: NONSENSICAL_PROMPT.replace('{{question}}', question)
-          }
-        ],
-        temperature: 0.9,
-        max_tokens: 500
       }
     });
 
@@ -75,7 +73,7 @@ async function callMiniMaxAPI(question) {
     
     return generateFallbackReply(question);
   } catch (error) {
-    console.error('MiniMax API 调用失败:', error);
+    console.error('MiniMax API 调用失败:', error.response?.data || error.message);
     return generateFallbackReply(question);
   }
 }

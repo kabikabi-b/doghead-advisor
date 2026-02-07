@@ -10,11 +10,11 @@
       最多点赞
     </view>
     <view 
-      class="filter-item {{filter === 'guguRate' ? 'active' : ''}}" 
+      class="filter-item {{filter === 'questions' ? 'active' : ''}}" 
       bindtap="onFilterTap" 
-      data-filter="guguRate"
+      data-filter="questions"
     >
-      最高咕咕率
+      最多提问
     </view>
   </view>
 
@@ -33,19 +33,19 @@
         
         <!-- 用户信息 -->
         <view class="user-info" bindtap="onUserTap" data-user-id="{{item.id}}">
-          <text class="avatar">{{item.avatar}}</text>
+          <image class="avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFit"/>
           <view class="user-detail">
-            <text class="name">{{item.name}}</text>
+            <text class="name">{{item.nickName || item.name}}</text>
             <view class="stats">
-              <text class="stat-item">👍 {{item.likes}}</text>
-              <text class="stat-item">🐦 {{item.guguRate}}%</text>
+              <text class="stat-item">👍 {{item.totalLikes || item.likes || 0}}</text>
+              <text class="stat-item">❓ {{item.totalQuestions || item.questions || 0}}</text>
             </view>
           </view>
         </view>
         
         <!-- 分数 -->
         <view class="score">
-          <text class="score-num">{{item.score}}</text>
+          <text class="score-num">{{item.score || item.likes || 0}}</text>
         </view>
       </view>
     </block>

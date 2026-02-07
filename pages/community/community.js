@@ -28,10 +28,8 @@ Page({
       return;
     }
     
-    // 如果数据库就绪且没有数据，才加载
-    if (this.data.questions.length === 0) {
-      this.loadQuestions();
-    }
+    // 每次进入都刷新数据
+    this.loadQuestions();
   },
 
   /**

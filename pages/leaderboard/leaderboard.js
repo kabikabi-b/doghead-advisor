@@ -31,15 +31,15 @@ Page({
     }).catch(err => {
       console.error('加载排行榜失败:', err);
       // 使用模拟数据
-      this.setData({
-        rankList: [
-          { id: 1, name: '怼神降临', avatar: '🦁', likes: 1234, guguRate: 99, score: 1234 },
-          { id: 2, name: '机智小狐狸', avatar: '🦊', likes: 987, guguRate: 85, score: 987 },
-          { id: 3, name: '快乐小狗', avatar: '🐕', likes: 856, guguRate: 72, score: 856 },
-          { id: 4, name: '佛系青年', avatar: '🧘', likes: 654, guguRate: 60, score: 654 },
-          { id: 5, name: '乐观向上', avatar: '🌟', likes: 543, guguRate: 45, score: 543 }
-        ]
-      });
+      const mockData = [
+        { id: 1, nickName: '怼神降临', avatarUrl: '', totalLikes: 1234, totalQuestions: 50, score: 1234 },
+        { id: 2, nickName: '机智小狐狸', avatarUrl: '', totalLikes: 987, totalQuestions: 42, score: 987 },
+        { id: 3, nickName: '快乐小狗', avatarUrl: '', totalLikes: 856, totalQuestions: 38, score: 856 },
+        { id: 4, nickName: '佛系青年', avatarUrl: '', totalLikes: 654, totalQuestions: 25, score: 654 },
+        { id: 5, nickName: '乐观向上', avatarUrl: '', totalLikes: 543, totalQuestions: 18, score: 543 }
+      ];
+      
+      this.setData({ rankList: mockData });
     });
   },
 

@@ -5,9 +5,7 @@
   "scripts": {
     "test": "jest",
     "test:e2e": "jest --testPathPattern=e2e",
-    "test:index": "jest --testPathPattern=e2e/index.spec.js",
-    "test:result": "jest --testPathPattern=e2e/result.spec.js",
-    "test:history": "jest --testPathPattern=e2e/history.spec.js"
+    "test:config": "jest --testPathPattern=e2e/config.spec.js"
   },
   "keywords": [
     "miniprogram",
@@ -17,9 +15,7 @@
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "miniprogram-automator": "^1.0.0",
-    "jest": "^29.0.0"
-  },
-  "devDependencies": {}
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }

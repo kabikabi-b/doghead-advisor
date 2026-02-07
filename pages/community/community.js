@@ -186,29 +186,23 @@ Page({
     
     wx.cloud.callFunction({
       name: 'vote',
-      data: { type, id },
-      success: (res) => {
-        if (res.result.success) {
-          // 更新本地状态
-          const questions = this.data.questions.map(q => {
-            if (q._id === id) {
-              return {
-                ...q,
-                likes: res.result.action === 'like' ? q.likes + 1 : q.likes - 1,
-                voted: res.result.action === 'like'
-              };
-            }
-            return q;
-          });
-          this.setData({ questions });
-        }
-      },
-      fail: () => {
+      data: { type, id }
+    }).then(res => {
+      if (res.result && res.result.success) {
+        // 更新本地状态 - 直接从云数据库重新获取
+        this.loadQuestions();
+        
         wx.showToast({
-          title: '操作失败',
+          title: res.result.action === 'like' ? '点赞成功' : '已取消',
           icon: 'none'
         });
       }
+    }).catch(err => {
+      console.error('点赞失败:', err);
+      wx.showToast({
+        title: '点赞失败',
+        icon: 'none'
+      });
     });
   },
 

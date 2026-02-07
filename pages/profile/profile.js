@@ -25,50 +25,57 @@ Page({
   loadUserData() {
     this.setData({ loading: true });
 
+    const db = wx.cloud.database();
+    const _ = db.command;
+
+    // 1. 获取用户信息
     wx.cloud.callFunction({
       name: 'getUserProfile'
     }).then(res => {
-      if (res.result && res.result.success) {
-        this.setData({
-          userInfo: res.result.userInfo,
-          stats: res.result.stats,
-          myQuestions: res.result.myQuestions,
-          loading: false
-        });
-        // 保存到本地
+      if (res.result && res.result.userInfo) {
+        this.setData({ userInfo: res.result.userInfo });
         wx.setStorageSync('userInfo', res.result.userInfo);
       }
     }).catch(() => {
-      // 使用微信登录信息
-      wx.getUserProfile({
-        desc: '用于展示用户信息',
-        success: (userRes) => {
-          const userInfo = {
-            nickName: userRes.userInfo.nickName,
-            avatarUrl: userRes.userInfo.avatarUrl,
-            createTime: new Date().toLocaleString('zh-CN')
-          };
-          wx.setStorageSync('userInfo', userInfo);
-          this.setData({
-            userInfo,
-            stats: { totalQuestions: 0, totalLikes: 0 },
-            loading: false
-          });
+      // 使用本地存储的用户
+      const userInfo = wx.getStorageSync('userInfo');
+      if (userInfo) {
+        this.setData({ userInfo });
+      } else {
+        // 创建默认用户信息
+        const defaultUser = {
+          nickName: '狗狗用户',
+          avatarUrl: '/images/dog-avatar/png/westie-cute.png'
+        };
+        this.setData({ userInfo: defaultUser });
+        wx.setStorageSync('userInfo', defaultUser);
+      }
+    });
+
+    // 2. 获取统计数据 - 从云数据库统计
+    db.collection('questions').count().then(res => {
+      const totalQuestions = res.total || 0;
+      // 从本地历史记录统计
+      const history = wx.getStorageSync('history') || [];
+      
+      this.setData({
+        stats: {
+          totalQuestions: totalQuestions,
+          totalLikes: history.reduce((sum, q) => sum + (q.likes || 0), 0)
         },
-        fail: () => {
-          // 创建默认用户信息
-          const defaultUser = {
-            nickName: '狗狗用户',
-            avatarUrl: '/images/dog-avatar/png/westie-cute.png',
-            createTime: new Date().toLocaleString('zh-CN')
-          };
-          wx.setStorageSync('userInfo', defaultUser);
-          this.setData({
-            userInfo: defaultUser,
-            stats: { totalQuestions: 0, totalLikes: 0 },
-            loading: false
-          });
-        }
+        myQuestions: history.slice(0, 10),
+        loading: false
+      });
+    }).catch(() => {
+      // 使用本地历史记录
+      const history = wx.getStorageSync('history') || [];
+      this.setData({
+        stats: {
+          totalQuestions: history.length,
+          totalLikes: 0
+        },
+        myQuestions: history.slice(0, 10),
+        loading: false
       });
     });
   },

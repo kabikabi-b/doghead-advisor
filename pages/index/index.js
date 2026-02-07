@@ -96,12 +96,41 @@ Page({
       id: Date.now(),
       question,
       reply,
-      createTime: now.toLocaleString('zh-CN')
+      createTime: now.toISOString()
     };
     
     // 添加到开头，保留最近50条
     history = [newItem, ...history].slice(0, 50);
     wx.setStorageSync('history', history);
+    
+    // 3. 同步到 users 集合统计
+    this.updateUserStats(question);
+  },
+
+  // 更新用户统计
+  updateUserStats(question) {
+    const db = wx.cloud.database();
+    const wxContext = wx.cloud.getCurrentEnv();
+    
+    wx.cloud.callFunction({
+      name: 'getUserProfile'
+    }).then(res => {
+      if (res.result && res.result.userInfo) {
+        // 更新用户统计
+        db.collection('users').where({
+          openid: res.result.userInfo.openid
+        }).update({
+          data: {
+            totalQuestions: db.command.inc(1),
+            lastQuestionTime: new Date().toISOString()
+          }
+        }).catch(err => {
+          console.error('[updateUserStats] 更新失败:', err);
+        });
+      }
+    }).catch(err => {
+      console.error('[updateUserStats] 获取用户信息失败:', err);
+    });
   },
 
   // 跳转到历史记录页

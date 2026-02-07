@@ -38,8 +38,10 @@ Page({
    * 检查数据库集合是否就绪
    */
   async checkDatabase() {
+    console.log('[checkDatabase] 开始检查数据库');
     try {
       const results = await db.checkCollections();
+      console.log('[checkDatabase] 检查结果:', results);
       const notReady = db.getNotReadyCollections(results);
       
       if (notReady.length > 0) {
@@ -66,6 +68,7 @@ Page({
    * 初始化数据库集合
    */
   async initDatabase() {
+    console.log('[initDatabase] 被调用');
     wx.showLoading({ title: '初始化中...' });
     
     try {

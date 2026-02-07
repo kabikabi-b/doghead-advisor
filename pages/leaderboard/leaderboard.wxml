@@ -3,66 +3,54 @@
   <!-- 筛选栏 -->
   <view class="filter-bar">
     <view 
+      class="filter-item {{filter === 'latest' ? 'active' : ''}}" 
+      bindtap="onFilterTap" 
+      data-filter="latest"
+    >
+      最新问题
+    </view>
+    <view 
       class="filter-item {{filter === 'likes' ? 'active' : ''}}" 
       bindtap="onFilterTap" 
       data-filter="likes"
     >
-      最多点赞
-    </view>
-    <view 
-      class="filter-item {{filter === 'questions' ? 'active' : ''}}" 
-      bindtap="onFilterTap" 
-      data-filter="questions"
-    >
-      最多提问
+      最热问题
     </view>
   </view>
 
-  <!-- 排行榜列表 -->
-  <view class="rank-list">
-    <block wx:if="{{rankList.length > 0}}">
+  <!-- 问题列表 -->
+  <view class="question-list">
+    <block wx:if="{{questionList.length > 0}}">
       <view 
-        class="rank-item {{index < 3 ? 'top-three' : ''}}" 
-        wx:for="{{rankList}}" 
-        wx:key="id"
+        class="question-item" 
+        wx:for="{{questionList}}" 
+        wx:key="_id"
       >
         <!-- 排名 -->
-        <view class="rank-num">
-          <text class="num {{index < 3 ? 'top' : ''}}">{{index + 1}}</text>
+        <view class="rank-badge {{index < 3 ? 'top' : ''}}">
+          <text>{{index + 1}}</text>
         </view>
         
-        <!-- 用户信息 -->
-        <view class="user-info" bindtap="onUserTap" data-user-id="{{item.id}}">
-          <image class="avatar" src="{{item.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFit"/>
-          <view class="user-detail">
-            <text class="name">{{item.nickName || item.name}}</text>
-            <view class="stats">
-              <text class="stat-item">👍 {{item.totalLikes || item.likes || 0}}</text>
-              <text class="stat-item">❓ {{item.totalQuestions || item.questions || 0}}</text>
-            </view>
+        <!-- 问题内容 -->
+        <view class="question-content">
+          <text class="question-text">{{item.question}}</text>
+          <view class="question-meta">
+            <text class="likes">👍 {{item.likes || 0}}</text>
+            <text class="time">{{item.createTime}}</text>
           </view>
-        </view>
-        
-        <!-- 分数 -->
-        <view class="score">
-          <text class="score-num">{{item.score || item.likes || 0}}</text>
         </view>
       </view>
     </block>
     
     <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{rankList.length === 0}}">
+    <view class="empty-state" wx:if="{{questionList.length === 0 && !loading}}">
       <text class="empty-icon">🏆</text>
-      <text class="empty-text">暂无排行榜数据</text>
+      <text class="empty-text">暂无问题，快来提问吧！</text>
     </view>
-  </view>
-
-  <!-- 当前用户排名 -->
-  <view class="current-user-rank" wx:if="{{currentUserRank}}">
-    <text class="label">我的排名</text>
-    <view class="rank-info">
-      <text class="rank-num">{{currentUserRank.rank || '--'}}</text>
-      <text class="score">{{currentUserRank.score || 0}}</text>
+    
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
     </view>
   </view>
 </view>

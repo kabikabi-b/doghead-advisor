@@ -52,7 +52,7 @@ Page({
         const { reply, questionId } = result;
         console.log('[onGenerateTap] 成功! reply:', reply);
         
-        // 保存到历史记录
+        // 保存到本地和云数据库
         this.saveToHistory(question, reply);
         
         // 跳转结果页 - 使用绝对路径
@@ -71,14 +71,32 @@ Page({
     });
   },
 
-  // 保存到历史记录
+  // 保存到历史记录和云数据库
   saveToHistory(question, reply) {
+    const db = wx.cloud.database();
+    const now = new Date();
+    
+    // 1. 保存到云数据库 (供社群页使用)
+    db.collection('questions').add({
+      data: {
+        question: question,
+        reply: reply,
+        likes: 0,
+        createTime: now.toISOString()
+      }
+    }).then(res => {
+      console.log('[saveToHistory] 云数据库保存成功:', res._id);
+    }).catch(err => {
+      console.error('[saveToHistory] 云数据库保存失败:', err);
+    });
+    
+    // 2. 保存到本地历史记录
     let history = wx.getStorageSync('history') || [];
     const newItem = {
       id: Date.now(),
       question,
       reply,
-      createTime: new Date().toLocaleString('zh-CN')
+      createTime: now.toLocaleString('zh-CN')
     };
     
     // 添加到开头，保留最近50条

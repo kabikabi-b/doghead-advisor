@@ -170,6 +170,67 @@ describe('云函数测试', () => {
     });
   });
 
+  describe('getLikeStatus 云函数', () => {
+    it('应该获取已点赞状态', async () => {
+      mockCloud.callFunction.mockResolvedValue({
+        result: {
+          success: true,
+          liked: true,
+          likeCount: 10
+        }
+      });
+
+      const res = await wx.cloud.callFunction({
+        name: 'getLikeStatus',
+        data: { questionId: 'q123' }
+      });
+
+      expect(mockCloud.callFunction).toHaveBeenCalledWith({
+        name: 'getLikeStatus',
+        data: { questionId: 'q123' }
+      });
+
+      expect(res.result.success).toBe(true);
+      expect(res.result.liked).toBe(true);
+      expect(res.result.likeCount).toBe(10);
+    });
+
+    it('应该获取未点赞状态', async () => {
+      mockCloud.callFunction.mockResolvedValue({
+        result: {
+          success: true,
+          liked: false,
+          likeCount: 5
+        }
+      });
+
+      const res = await wx.cloud.callFunction({
+        name: 'getLikeStatus',
+        data: { questionId: 'q456' }
+      });
+
+      expect(res.result.liked).toBe(false);
+      expect(res.result.likeCount).toBe(5);
+    });
+
+    it('应该处理缺少 questionId 的情况', async () => {
+      mockCloud.callFunction.mockResolvedValue({
+        result: {
+          success: false,
+          error: '缺少问题ID'
+        }
+      });
+
+      const res = await wx.cloud.callFunction({
+        name: 'getLikeStatus',
+        data: {}
+      });
+
+      expect(res.result.success).toBe(false);
+      expect(res.result.error).toBe('缺少问题ID');
+    });
+  });
+
   describe('云函数配置验证', () => {
     it('generateReply 应该有 package.json 依赖配置', () => {
       const fs = require('fs');
@@ -209,6 +270,17 @@ describe('云函数测试', () => {
       const path = require('path');
       
       const packagePath = path.join(__dirname, '../../cloudfunctions/getUserProfile/package.json');
+      const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+      
+      expect(packageJson.dependencies).toBeDefined();
+      expect(packageJson.dependencies['wx-server-sdk']).toBeDefined();
+    });
+
+    it('getLikeStatus 应该有 package.json 依赖配置', () => {
+      const fs = require('fs');
+      const path = require('path');
+      
+      const packagePath = path.join(__dirname, '../../cloudfunctions/getLikeStatus/package.json');
       const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
       
       expect(packageJson.dependencies).toBeDefined();

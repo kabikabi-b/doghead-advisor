@@ -2,6 +2,7 @@
 Page({
   data: {
     userInfo: null,
+    hasUserInfo: false,
     stats: {
       totalQuestions: 0,
       totalLikes: 0,
@@ -16,67 +17,122 @@ Page({
   },
 
   onShow() {
-    if (!this.data.userInfo) {
-      this.loadUserData();
-    }
+    this.loadUserData();
+  },
+
+  // 微信登录
+  onLoginTap() {
+    wx.showLoading({ title: '登录中...' });
+    
+    // 获取用户头像和昵称
+    wx.getUserProfile({
+      desc: '用于完善用户资料',
+      success: (res) => {
+        console.log('[onLoginTap] 获取用户信息成功:', res.userInfo);
+        this.setData({
+          userInfo: {
+            nickName: res.userInfo.nickName,
+            avatarUrl: res.userInfo.avatarUrl,
+            hasUserInfo: true
+          },
+          hasUserInfo: true
+        });
+        
+        // 保存到本地
+        wx.setStorageSync('userInfo', res.userInfo);
+        
+        // 调用云函数更新用户信息
+        this.updateCloudUser(res.userInfo);
+        
+        wx.hideLoading();
+        wx.showToast({ title: '登录成功！', icon: 'success' });
+      },
+      fail: (err) => {
+        console.error('[onLoginTap] 获取用户信息失败:', err);
+        wx.hideLoading();
+        
+        // 尝试使用微信登录
+        this.wechatLogin();
+      }
+    });
+  },
+
+  // 微信登录获取 OpenID
+  wechatLogin() {
+    wx.cloud.callFunction({
+      name: 'getUserProfile'
+    }).then(res => {
+      console.log('[wechatLogin] 获取用户资料:', res.result);
+      if (res.result && res.result.userInfo) {
+        this.setData({
+          userInfo: res.result.userInfo,
+          hasUserInfo: true
+        });
+        wx.setStorageSync('userInfo', res.result.userInfo);
+      }
+    }).catch(err => {
+      console.error('[wechatLogin] 失败:', err);
+    });
+  },
+
+  // 更新云端用户信息
+  updateCloudUser(userInfo) {
+    const db = wx.cloud.database();
+    
+    db.collection('users').where({
+      openid: '{openid}' // 会被云函数自动替换
+    }).get().then(res => {
+      if (res.data.length > 0) {
+        db.collection('users').doc(res.data[0]._id).update({
+          data: {
+            nickName: userInfo.nickName,
+            avatarUrl: userInfo.avatarUrl
+          }
+        });
+      }
+    });
+  },
+
+  // 昵称输入
+  onNicknameInput(e) {
+    const nickName = e.detail.value;
+    this.setData({
+      'userInfo.nickName': nickName
+    });
+    wx.setStorageSync('userInfo', this.data.userInfo);
   },
 
   // 加载用户数据
   loadUserData() {
     this.setData({ loading: true });
 
-    const db = wx.cloud.database();
-    const _ = db.command;
+    // 1. 尝试从本地获取用户信息
+    const localUserInfo = wx.getStorageSync('userInfo');
+    if (localUserInfo) {
+      this.setData({ 
+        userInfo: localUserInfo,
+        hasUserInfo: true
+      });
+    }
 
-    // 1. 获取用户信息
+    // 2. 获取用户统计数据
     wx.cloud.callFunction({
       name: 'getUserProfile'
     }).then(res => {
-      if (res.result && res.result.userInfo) {
-        this.setData({ userInfo: res.result.userInfo });
-        wx.setStorageSync('userInfo', res.result.userInfo);
+      console.log('[loadUserData] getUserProfile:', res.result);
+      if (res.result) {
+        if (res.result.userInfo) {
+          this.setData({ userInfo: res.result.userInfo });
+          wx.setStorageSync('userInfo', res.result.userInfo);
+        }
+        if (res.result.stats) {
+          this.setData({ stats: res.result.stats });
+        }
       }
-    }).catch(() => {
-      // 使用本地存储的用户
-      const userInfo = wx.getStorageSync('userInfo');
-      if (userInfo) {
-        this.setData({ userInfo });
-      } else {
-        // 创建默认用户信息
-        const defaultUser = {
-          nickName: '狗狗用户',
-          avatarUrl: '/images/dog-avatar/png/westie-cute.png'
-        };
-        this.setData({ userInfo: defaultUser });
-        wx.setStorageSync('userInfo', defaultUser);
-      }
-    });
-
-    // 2. 获取统计数据 - 从云数据库统计
-    db.collection('questions').count().then(res => {
-      const totalQuestions = res.total || 0;
-      // 从本地历史记录统计
-      const history = wx.getStorageSync('history') || [];
-      
-      this.setData({
-        stats: {
-          totalQuestions: totalQuestions,
-          totalLikes: history.reduce((sum, q) => sum + (q.likes || 0), 0)
-        },
-        myQuestions: history.slice(0, 10),
-        loading: false
-      });
-    }).catch(() => {
-      // 使用本地历史记录
-      const history = wx.getStorageSync('history') || [];
-      this.setData({
-        stats: {
-          totalQuestions: history.length,
-          totalLikes: 0
-        },
-        myQuestions: history.slice(0, 10),
-        loading: false
-      });
+      this.setData({ loading: false });
+    }).catch(err => {
+      console.error('[loadUserData] getUserProfile 失败:', err);
+      this.setData({ loading: false });
     });
   },
 
@@ -140,10 +196,7 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadUserData().then(() => {
-      wx.stopPullDownRefresh();
-    }).catch(() => {
-      wx.stopPullDownRefresh();
-    });
+    this.loadUserData();
+    wx.stopPullDownRefresh();
   }
 });

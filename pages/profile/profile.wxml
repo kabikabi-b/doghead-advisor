@@ -3,16 +3,32 @@
   <!-- 用户信息 -->
   <view class="user-card">
     <view class="avatar-section">
-      <image 
-        class="avatar" 
-        src="/images/dog-avatar-new.jpg" 
-        mode="aspectFill"
-      />
+      <button class="avatar-btn" bindtap="onLoginTap" open-type="{{hasUserInfo ? '' : 'chooseAvatar'}}">
+        <image 
+          class="avatar" 
+          src="{{userInfo.avatarUrl || '/images/dog-avatar-new.jpg'}}" 
+          mode="aspectFill"
+        />
+      </button>
     </view>
     <view class="info-section">
-      <text class="nickname">狗狗用户</text>
-      <text class="user-id">ID: 000000</text>
+      <input 
+        class="nickname-input" 
+        value="{{userInfo.nickName || '狗狗用户'}}" 
+        bindinput="onNicknameInput"
+        disabled="{{!hasUserInfo}}"
+        placeholder="点击头像登录"
+      />
+      <text class="user-id">ID: {{userInfo._id || '未登录'}}</text>
     </view>
+  </view>
+
+  <!-- 登录按钮 -->
+  <view class="login-btn-section" wx:if="{{!hasUserInfo}}">
+    <button class="wechat-login-btn" bindtap="onLoginTap" open-type="chooseAvatar">
+      📱 微信一键登录
+    </button>
+    <text class="login-tip">登录后同步你的历史和点赞</text>
   </view>
 
   <!-- 统计数据 -->

@@ -109,13 +109,12 @@ Page({
 
   // 更新用户统计
   updateUserStats(question) {
-    const db = wx.cloud.database();
-    const wxContext = wx.cloud.getCurrentEnv();
-    
     wx.cloud.callFunction({
       name: 'getUserProfile'
     }).then(res => {
       if (res.result && res.result.userInfo) {
+        const db = wx.cloud.database();
+        
         // 更新用户统计
         db.collection('users').where({
           openid: res.result.userInfo.openid

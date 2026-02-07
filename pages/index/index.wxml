@@ -31,7 +31,7 @@
     <button 
       class="generate-btn {{loading ? 'disabled' : ''}}" 
       bindtap="onGenerateTap"
-      disabled="{{loading || !question}}"
+      disabled="{{loading}}"
     >
       {{loading ? '生成中...' : '🐕 咨询狗哥'}}
     </button>

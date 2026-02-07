@@ -5,7 +5,7 @@
     <view class="logo-container">
       <image 
         class="logo" 
-        src="/images/dog-avatar/png/westie-happy-big.png" 
+        src="/images/dog-avatar-new.jpg" 
         mode="aspectFit"
       />
     </view>

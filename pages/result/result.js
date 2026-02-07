@@ -5,6 +5,7 @@ Page({
     reply: '',
     questionId: '',
     liked: false,
+    likeCount: 0,
     showToast: false,
     toastText: ''
   },
@@ -17,6 +18,32 @@ Page({
         questionId: options.questionId || ''
       });
     }
+    
+    // 加载点赞数据
+    this.loadLikeData();
+  },
+
+  // 加载点赞数据和状态
+  loadLikeData() {
+    const { questionId } = this.data;
+    if (!questionId) return;
+    
+    // 获取用户点赞状态
+    wx.cloud.callFunction({
+      name: 'getLikeStatus',
+      data: { questionId },
+      success: (res) => {
+        if (res.result && res.result.success) {
+          this.setData({
+            liked: res.result.liked,
+            likeCount: res.result.likeCount || 0
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('获取点赞状态失败:', err);
+      }
+    });
   },
 
   // 返回上一页
@@ -48,13 +75,45 @@ Page({
 
   // 点赞
   onLikeTap() {
+    const { questionId, liked } = this.data;
+    if (!questionId) {
+      this.showToast('无法点赞');
+      return;
+    }
+    
+    // 先更新UI
     this.setData({
-      liked: !this.data.liked
+      liked: !liked,
+      likeCount: liked ? this.data.likeCount - 1 : this.data.likeCount + 1
     });
     
-    if (this.data.liked) {
-      this.showToast('感谢点赞！🙏');
-    }
+    // 调用云函数
+    wx.cloud.callFunction({
+      name: 'vote',
+      data: { type: 'answer', id: questionId },
+      success: (res) => {
+        if (res.result && !res.result.success) {
+          // 失败了，恢复原状
+          this.setData({
+            liked: liked,
+            likeCount: liked ? this.data.likeCount + 1 : this.data.likeCount - 1
+          });
+          this.showToast('点赞失败');
+        } else {
+          const action = res.result.action;
+          this.showToast(action === 'like' ? '点赞成功！🐕' : '已取消点赞');
+        }
+      },
+      fail: (err) => {
+        // 失败了，恢复原状
+        this.setData({
+          liked: liked,
+          likeCount: liked ? this.data.likeCount + 1 : this.data.likeCount - 1
+        });
+        console.error('点赞失败:', err);
+        this.showToast('网络错误');
+      }
+    });
   },
 
   // 再问一个

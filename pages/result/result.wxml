@@ -5,7 +5,11 @@
     <view class="back-btn" bindtap="onBackTap">
       <text class="back-icon">←</text>
     </view>
-    <text class="header-title">狗狗军师</text>
+    <view class="header-center">
+      <image class="header-avatar" src="/images/dog-avatar-new.jpg" mode="aspectFit"></image>
+      <text class="header-title">狗狗军师</text>
+    </view>
+    <view class="header-placeholder"></view>
   </view>
 
   <!-- Question Card -->
@@ -28,7 +32,7 @@
     </view>
     <view class="action-btn like-btn {{liked ? 'liked' : ''}}" bindtap="onLikeTap">
       <text class="action-icon">{{liked ? '❤️' : '👍'}}</text>
-      <text class="action-text">{{liked ? '已赞' : '点赞'}}</text>
+      <text class="action-text">{{liked ? '已赞' : '点赞'}} {{likeCount}}</text>
     </view>
   </view>
 

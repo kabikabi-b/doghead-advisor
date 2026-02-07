@@ -15,6 +15,19 @@
   position: relative;
 }
 
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.header-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  border: 3rpx solid #FF8A65;
+}
+
 .back-btn {
   width: 60rpx;
   height: 60rpx;

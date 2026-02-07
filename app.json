@@ -8,7 +8,7 @@
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#F5F5DC",
     "navigationBarTitleText": "狗头军师",
-    "navigationBarTextStyle": "dark"
+    "navigationBarTextStyle": "black"
   },
   "sitemapLocation": "sitemap.json"
 }

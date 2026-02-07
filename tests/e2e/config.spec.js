@@ -68,8 +68,8 @@ describe('微信小程序配置验证', () => {
       expect(typeof appConfig.window.navigationBarTextStyle).toBe('string');
     });
 
-    test('navigationBarTextStyle 只能是 black 或 dark', () => {
-      const validValues = ['black', 'dark'];
+    test('navigationBarTextStyle 只能是 black 或 white', () => {
+      const validValues = ['black', 'white'];
       expect(validValues).toContain(appConfig.window.navigationBarTextStyle);
     });
 

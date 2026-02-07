@@ -1,0 +1,27 @@
+{
+  "name": "doghead-advisor",
+  "version": "1.0.0",
+  "description": "> 狗头军师微信小程序自动化测试",
+  "main": "app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kabikabi-b/doghead-advisor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kabikabi-b/doghead-advisor/issues"
+  },
+  "homepage": "https://github.com/kabikabi-b/doghead-advisor#readme",
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

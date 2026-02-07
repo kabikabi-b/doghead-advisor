@@ -3,7 +3,11 @@
   <!-- Header -->
   <view class="header">
     <view class="logo-container">
-      <text class="logo">🐕</text>
+      <image 
+        class="logo" 
+        src="/images/dog-avatar/png/westie-happy.png" 
+        mode="aspectFit"
+      />
     </view>
     <text class="title">狗狗军师</text>
     <text class="subtitle">今天有什么烦心事？</text>

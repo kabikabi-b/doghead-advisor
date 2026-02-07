@@ -14,11 +14,17 @@ Page({
   },
 
   onLoad() {
-    this.loadQuestions();
+    // 先检查数据库
+    this.checkDatabase().then(isReady => {
+      if (isReady) {
+        this.loadQuestions();
+      }
+    });
   },
 
   onShow() {
-    if (this.data.questions.length === 0) {
+    // 如果数据库就绪且没有数据，才加载
+    if (this.data.questions.length === 0 && !this.data.collectionError) {
       this.loadQuestions();
     }
   },
@@ -94,12 +100,9 @@ Page({
 
   // 加载问题列表
   loadQuestions() {
-    // 如果数据库有问题，先检查
+    // 如果数据库有问题，不加载
     if (this.data.collectionError) {
-      const isReady = this.checkDatabase();
-      if (!isReady) {
-        return; // 等待用户初始化
-      }
+      return;
     }
     
     if (this.data.loading || !this.data.hasMore) return;

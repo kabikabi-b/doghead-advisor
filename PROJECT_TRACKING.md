@@ -60,7 +60,7 @@
 
 | ID | 描述 | 状态 | 负责人 | 创建时间 | 最后催促 |
 |----|------|------|--------|----------|----------|
-| TASK-001 | 部署 initDb 云函数并创建数据库集合 | 🔴 待修复 | @KabiKabiYaaa_bot | 2026-02-07 17:52 | - |
+| TASK-001 | 部署 initDb 云函数并创建数据库集合 | ✅ 已完成 | @KabiKabiYaaa_bot | 2026-02-07 17:52 | 2026-02-07 19:34 |
 | TASK-002 | 修复 "咨询狗哥" 按钮 API 调用方式 (axios) | 🔴 待修复 | @KabiKabiYaaa_bot | 2026-02-07 18:35 | - |
 | TASK-003 | 添加 profile.js 的 goToIndex 方法 | 🔴 待修复 | @KabiKabiYaaa_bot | 2026-02-07 19:21 | - |
 | TASK-004 | 移除排行榜 guguRate 概念 | 🔴 待修复 | @KabiKabiYaaa_bot | 2026-02-07 19:21 | - |

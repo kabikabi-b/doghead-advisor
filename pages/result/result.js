@@ -28,20 +28,26 @@ Page({
     const { questionId } = this.data;
     if (!questionId) return;
     
+    console.log('[getLikeStatus] 正在获取点赞状态, questionId:', questionId);
+    
     // 获取用户点赞状态
     wx.cloud.callFunction({
       name: 'getLikeStatus',
       data: { questionId },
       success: (res) => {
+        console.log('[getLikeStatus] 成功:', res.result);
         if (res.result && res.result.success) {
           this.setData({
             liked: res.result.liked,
             likeCount: res.result.likeCount || 0
           });
+          console.log('[getLikeStatus] 更新状态: liked=' + res.result.liked + ', likeCount=' + res.result.likeCount);
+        } else {
+          console.error('[getLikeStatus] 返回失败:', res.result);
         }
       },
       fail: (err) => {
-        console.error('获取点赞状态失败:', err);
+        console.error('[getLikeStatus] 获取失败:', err);
       }
     });
   },
@@ -77,21 +83,30 @@ Page({
   onLikeTap() {
     const { questionId, liked } = this.data;
     if (!questionId) {
+      console.error('[vote] 缺少 questionId');
       this.showToast('无法点赞');
       return;
     }
     
+    console.log('[vote] 触发点赞, 当前 liked=' + liked + ', questionId=' + questionId);
+    
     // 先更新UI
+    const newLiked = !liked;
+    const newCount = liked ? this.data.likeCount - 1 : this.data.likeCount + 1;
+    
     this.setData({
-      liked: !liked,
-      likeCount: liked ? this.data.likeCount - 1 : this.data.likeCount + 1
+      liked: newLiked,
+      likeCount: newCount
     });
+    
+    console.log('[vote] 乐观更新 UI: liked=' + newLiked + ', likeCount=' + newCount);
     
     // 调用云函数
     wx.cloud.callFunction({
       name: 'vote',
       data: { type: 'answer', id: questionId },
       success: (res) => {
+        console.log('[vote] 云函数返回:', res.result);
         if (res.result && !res.result.success) {
           // 失败了，恢复原状
           this.setData({
@@ -110,7 +125,7 @@ Page({
           liked: liked,
           likeCount: liked ? this.data.likeCount + 1 : this.data.likeCount - 1
         });
-        console.error('点赞失败:', err);
+        console.error('[vote] 网络错误:', err);
         this.showToast('网络错误');
       }
     });

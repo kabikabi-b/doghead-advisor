@@ -1,15 +1,11 @@
 <!--pages/result/result.wxml-->
 <view class="container">
-  <!-- Header with Back -->
+  <!-- Header -->
   <view class="header">
-    <view class="back-btn" bindtap="onBackTap">
-      <text class="back-icon">←</text>
-    </view>
     <view class="header-center">
       <image class="header-avatar" src="/images/dog-avatar-new.jpg" mode="aspectFit"></image>
       <text class="header-title">狗狗军师</text>
     </view>
-    <view class="header-placeholder"></view>
   </view>
 
   <!-- Question Card -->

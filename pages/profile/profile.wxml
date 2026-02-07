@@ -5,7 +5,7 @@
     <view class="avatar-section">
       <image 
         class="avatar" 
-        src="/images/dog-avatar/png/westie-cute.png" 
+        src="/images/dog-avatar-new.jpg" 
         mode="aspectFill"
       />
     </view>

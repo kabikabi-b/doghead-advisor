@@ -28,8 +28,10 @@ Page({
   // 生成回复
   onGenerateTap() {
     const question = this.data.question.trim();
+    console.log('[onGenerateTap] question:', question);
     
     if (!question) {
+      console.log('[onGenerateTap] 问题为空');
       wx.showToast({
         title: '请输入问题',
         icon: 'none'
@@ -38,16 +40,19 @@ Page({
     }
 
     this.setData({ loading: true });
+    console.log('[onGenerateTap] loading=true，开始调用云函数');
 
     // 调用云函数生成回复
     wx.cloud.callFunction({
       name: 'generateReply',
       data: { question },
       success: (res) => {
+        console.log('[onGenerateTap] 云函数返回:', res);
         this.setData({ loading: false });
         
         if (res.result && res.result.success) {
           const { reply, questionId } = res.result;
+          console.log('[onGenerateTap] 成功，跳转结果页');
           
           // 保存到历史记录
           this.saveToHistory(question, reply);
@@ -57,6 +62,7 @@ Page({
             url: `/pages/result/result?question=${encodeURIComponent(question)}&reply=${encodeURIComponent(reply)}&questionId=${questionId}`
           });
         } else {
+          console.log('[onGenerateTap] 生成失败:', res.result);
           wx.showToast({
             title: '生成失败，请重试',
             icon: 'none'
@@ -64,7 +70,7 @@ Page({
         }
       },
       fail: (err) => {
-        console.error('调用云函数失败:', err);
+        console.error('[onGenerateTap] 调用云函数失败:', err);
         this.setData({ loading: false });
         wx.showToast({
           title: '网络错误，请重试',

@@ -1,32 +1,68 @@
+<!--pages/leaderboard/leaderboard.wxml-->
 <view class="container">
-  <view class="top-user card">
-    <text class="crown-icon">👑</text>
-    <view class="top-avatar">🦁</view>
-    <text class="top-name">怼神降临</text>
-    <text class="top-badge">🏆 本周狗头之最</text>
-    <view class="top-stats">
-      <view class="top-stat">
-        <text class="top-stat-value">1,234</text>
-        <text class="top-stat-label">累计点赞</text>
-      </view>
-      <view class="top-stat">
-        <text class="top-stat-value">99%</text>
-        <text class="top-stat-label">咕咕率</text>
-      </view>
+  <!-- 筛选栏 -->
+  <view class="filter-bar">
+    <view 
+      class="filter-item {{filter === 'likes' ? 'active' : ''}}" 
+      bindtap="onFilterTap" 
+      data-filter="likes"
+    >
+      最多点赞
+    </view>
+    <view 
+      class="filter-item {{filter === 'guguRate' ? 'active' : ''}}" 
+      bindtap="onFilterTap" 
+      data-filter="guguRate"
+    >
+      最高咕咕率
     </view>
   </view>
-  
+
+  <!-- 排行榜列表 -->
   <view class="rank-list">
-    <block wx:for="{{rankList}}" wx:key="rank">
-      <view class="card rank-item">
-        <text class="rank-num {{index<3?'gold silver bronze'.split(' ')[index]:''}}">{{index+1}}</text>
-        <view class="rank-avatar">{{item.avatar}}</view>
-        <view class="rank-info">
-          <text class="rank-name">{{item.name}}</text>
-          <text class="rank-stats">{{item.likes}} 赞 · {{item.guguRate}}%咕咕率</text>
+    <block wx:if="{{rankList.length > 0}}">
+      <view 
+        class="rank-item {{index < 3 ? 'top-three' : ''}}" 
+        wx:for="{{rankList}}" 
+        wx:key="id"
+      >
+        <!-- 排名 -->
+        <view class="rank-num">
+          <text class="num {{index < 3 ? 'top' : ''}}">{{index + 1}}</text>
         </view>
-        <text class="rank-score">{{item.score}}</text>
+        
+        <!-- 用户信息 -->
+        <view class="user-info" bindtap="onUserTap" data-user-id="{{item.id}}">
+          <text class="avatar">{{item.avatar}}</text>
+          <view class="user-detail">
+            <text class="name">{{item.name}}</text>
+            <view class="stats">
+              <text class="stat-item">👍 {{item.likes}}</text>
+              <text class="stat-item">🐦 {{item.guguRate}}%</text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 分数 -->
+        <view class="score">
+          <text class="score-num">{{item.score}}</text>
+        </view>
       </view>
     </block>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{rankList.length === 0}}">
+      <text class="empty-icon">🏆</text>
+      <text class="empty-text">暂无排行榜数据</text>
+    </view>
+  </view>
+
+  <!-- 当前用户排名 -->
+  <view class="current-user-rank" wx:if="{{currentUserRank}}">
+    <text class="label">我的排名</text>
+    <view class="rank-info">
+      <text class="rank-num">{{currentUserRank.rank || '--'}}</text>
+      <text class="score">{{currentUserRank.score || 0}}</text>
+    </view>
   </view>
 </view>

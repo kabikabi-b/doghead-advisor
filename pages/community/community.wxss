@@ -1,4 +1,5 @@
 /* pages/community/community.wxss */
+<<<<<<< HEAD
 .filter-bar {
   display: flex;
   justify-content: center;
@@ -17,10 +18,55 @@
 .filter-btn.active {
   color: #FF8A00;
   border-bottom-color: #FF8A00;
+=======
+.container {
+  min-height: 100vh;
+  background-color: #F5F5DC;
+  padding: 20rpx;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  display: flex;
+  background-color: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.filter-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #8D6E63;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+}
+
+.filter-item.active {
+  background-color: #FF8A65;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+/* 问题列表 */
+.question-list {
+  padding-bottom: 20rpx;
+}
+
+.question-card {
+  background-color: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+>>>>>>> origin/feature/doghead-mvp
 }
 
 .question-header {
   display: flex;
+<<<<<<< HEAD
   align-items: center;
   margin-bottom: 20rpx;
 }
@@ -62,11 +108,30 @@
   color: #e0e0e0;
   line-height: 1.6;
   display: block;
+=======
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.question-text {
+  font-size: 30rpx;
+  color: #5D4037;
+  flex: 1;
+  line-height: 1.5;
+}
+
+.expand-icon {
+  font-size: 24rpx;
+  color: #FF8A65;
+  margin-left: 20rpx;
+  white-space: nowrap;
+>>>>>>> origin/feature/doghead-mvp
 }
 
 .answer-section {
   margin-top: 20rpx;
   padding-top: 20rpx;
+<<<<<<< HEAD
   border-top: 1rpx solid rgba(255,255,255,0.05);
   display: none;
 }
@@ -86,10 +151,66 @@
   font-size: 30rpx;
   color: #d0d0d0;
   line-height: 1.6;
+=======
+  border-top: 1rpx solid #EEE;
+}
+
+.answer-section.hide {
+  display: none;
+}
+
+.answer-text {
+  font-size: 28rpx;
+  color: #8D6E63;
+  line-height: 1.6;
+}
+
+.vote-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20rpx;
+}
+
+.vote-item {
+  display: flex;
+  align-items: center;
+  padding: 10rpx 20rpx;
+  background-color: #F5F5DC;
+  border-radius: 30rpx;
+}
+
+.vote-icon {
+  font-size: 32rpx;
+  margin-right: 10rpx;
+}
+
+.vote-count {
+  font-size: 26rpx;
+  color: #8D6E63;
+}
+
+/* 状态显示 */
+.loading-state,
+.empty-state,
+.no-more {
+  text-align: center;
+  padding: 60rpx 0;
+}
+
+.loading-state text,
+.no-more text {
+  color: #8D6E63;
+  font-size: 28rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+>>>>>>> origin/feature/doghead-mvp
   display: block;
   margin-bottom: 20rpx;
 }
 
+<<<<<<< HEAD
 .vote-btns {
   display: flex;
   gap: 20rpx;
@@ -103,4 +224,9 @@
   color: #888;
   padding: 16rpx;
   border-radius: 30rpx;
+=======
+.empty-text {
+  color: #8D6E63;
+  font-size: 28rpx;
+>>>>>>> origin/feature/doghead-mvp
 }

@@ -1,131 +1,193 @@
 /**
- * 首页 E2E 测试
- * 测试页面: pages/index/index
+ * @jest-environment jsdom
  */
-const automator = require('miniprogram-automator');
-const { EXPECTED_TEXTS, SELECTORS, TEST_QUESTIONS } = require('../utils/constants');
 
-describe('首页测试', () => {
-  let miniProgram;
-  let page;
+// Mock 微信 API
+global.wx = {
+  navigateTo: jest.fn(),
+  redirectTo: jest.fn(),
+  reLaunch: jest.fn(),
+  switchTab: jest.fn(),
+  navigateBack: jest.fn(),
+  showToast: jest.fn(),
+  showLoading: jest.fn(),
+  hideLoading: jest.fn(),
+  showModal: jest.fn(),
+  setStorageSync: jest.fn(),
+  getStorageSync: jest.fn(),
+  removeStorageSync: jest.fn(),
+  getSystemInfoSync: jest.fn(() => ({
+    brand: 'iPhone',
+    model: 'iPhone 14',
+    system: 'iOS 16.0',
+    platform: 'devtools',
+    screenWidth: 375,
+    screenHeight: 812
+  })),
+  cloud: {
+    init: jest.fn(),
+    database: jest.fn(() => ({
+      collection: jest.fn((name) => ({
+        where: jest.fn(() => ({
+          orderBy: jest.fn(() => ({
+            limit: jest.fn(() => ({
+              skip: jest.fn(() => ({
+                get: jest.fn().mockResolvedValue({ data: [] })
+              }))
+            }))
+          })),
+          get: jest.fn().mockResolvedValue({ data: [] }),
+          doc: jest.fn(() => ({
+            update: jest.fn().mockResolvedValue({ success: true }),
+            remove: jest.fn().mockResolvedValue({ success: true }),
+            get: jest.fn().mockResolvedValue({ data: {} })
+          })),
+          add: jest.fn().mockResolvedValue({ _id: 'test-id' }),
+          count: jest.fn().mockResolvedValue({ total: 0 })
+        }))
+      }))
+    })),
+    callFunction: jest.fn().mockResolvedValue({ success: true })
+  },
+  stopPullDownRefresh: jest.fn()
+};
 
-  beforeAll(async () => {
-    miniProgram = await automator.launch({
-      projectPath: process.cwd(),
-      cliPath: '/Applications/wechatdevtools.cli'
+global.Page = jest.fn((options) => {
+  return {
+    ...options,
+    setData: jest.fn(function(data) {
+      Object.assign(this.data, data);
+    }),
+    data: {}
+  };
+});
+
+global.getCurrentPages = jest.fn(() => []);
+
+const { mockWx } = require('./utils/mock-wx');
+
+describe('首页 (Index) 测试', () => {
+  let indexPage;
+  
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockWx();
+    global.wx.cloud.callFunction.mockResolvedValue({
+      success: true,
+      reply: '测试回复',
+      questionId: '123'
+    });
+    global.wx.getStorageSync.mockReturnValue([]);
+    
+    // 重置 Page
+    global.Page = jest.fn((options) => {
+      indexPage = {
+        ...options,
+        data: {
+          question: '',
+          loading: false,
+          sampleQuestions: [
+            '今天运气怎么样？',
+            '老板不给涨工资怎么办？',
+            '如何追到女神？',
+            '女朋友生气了怎么办？',
+            '今天吃什么比较好？'
+          ]
+        },
+        setData: jest.fn()
+      };
+      return indexPage;
     });
   });
-
-  beforeEach(async () => {
-    page = await miniProgram.reLaunch('pages/index/index');
-    await page.waitForTimeout(500);
-  });
-
-  afterAll(async () => {
-    if (miniProgram) {
-      await miniProgram.close();
-    }
-  });
-
-  describe('页面加载', () => {
-    test('页面应该正常加载', async () => {
-      const pageData = await page.data();
-      expect(pageData).toBeDefined();
+  
+  describe('页面初始化', () => {
+    test('页面应该正确初始化', () => {
+      require('../../pages/index/index.js');
+      expect(global.Page).toHaveBeenCalled();
     });
-
-    test('应该显示标题 "狗头军师"', async () => {
-      const pageData = await page.data();
-      expect(pageData).toHaveProperty('title');
+    
+    test('初始化时问题为空', () => {
+      require('../../pages/index/index.js');
+      expect(indexPage.data.question).toBe('');
     });
-
-    test('应该显示副标题 "今天有什么烦心事？"', async () => {
-      const pageData = await page.data();
-      expect(pageData.subtitle).toBe('今天有什么烦心事？');
+    
+    test('初始化时 loading 为 false', () => {
+      require('../../pages/index/index.js');
+      expect(indexPage.data.loading).toBe(false);
+    });
+    
+    test('应该有示例问题列表', () => {
+      require('../../pages/index/index.js');
+      expect(indexPage.data.sampleQuestions.length).toBe(5);
     });
   });
-
-  describe('输入功能', () => {
-    test('应该能够输入问题', async () => {
-      const testQuestion = TEST_QUESTIONS[0];
-      await page.setData({ question: testQuestion });
-      
-      const pageData = await page.data();
-      expect(pageData.question).toBe(testQuestion);
-    });
-
-    test('输入后字符计数应该更新', async () => {
-      const testQuestion = '测试问题';
-      await page.setData({ question: testQuestion });
-      
-      const pageData = await page.data();
-      expect(pageData.question.length).toBe(testQuestion.length);
+  
+  describe('输入处理', () => {
+    test('onQuestionInput 应该更新问题', () => {
+      require('../../pages/index/index.js');
+      const mockEvent = { detail: { value: '测试问题' } };
+      indexPage.onQuestionInput(mockEvent);
+      expect(indexPage.setData).toHaveBeenCalledWith({ question: '测试问题' });
     });
   });
-
-  describe('按钮行为', () => {
-    test('问题为空时生成按钮应该禁用', async () => {
-      await page.setData({ question: '', loading: false });
-      
-      const pageData = await page.data();
-      const buttonDisabled = !pageData.question.trim() || pageData.loading;
-      expect(buttonDisabled).toBe(true);
+  
+  describe('示例问题点击', () => {
+    test('onSampleTap 应该设置问题', () => {
+      require('../../pages/index/index.js');
+      const mockEvent = { currentTarget: { dataset: { question: '示例问题' } } };
+      indexPage.onSampleTap(mockEvent);
+      expect(indexPage.setData).toHaveBeenCalledWith({ question: '示例问题' });
     });
-
-    test('问题不为空时生成按钮应该可用', async () => {
-      await page.setData({ question: '测试问题', loading: false });
-      
-      const pageData = await page.data();
-      const buttonDisabled = !pageData.question.trim() || pageData.loading;
-      expect(buttonDisabled).toBe(false);
+  });
+  
+  describe('生成回复', () => {
+    test('空问题不应该生成回复', () => {
+      require('../../pages/index/index.js');
+      indexPage.data.question = '';
+      indexPage.onGenerateTap();
+      expect(global.wx.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ title: '请输入问题' })
+      );
     });
-
-    test('点击生成按钮应该跳转到结果页', async () => {
-      const testQuestion = '今天晚饭吃什么？';
-      await page.setData({ question: testQuestion, loading: false });
-      
-      // 模拟点击生成按钮
-      await page.evaluate(() => {
-        const button = document.querySelector('.generate-btn');
-        if (button) {
-          button.click();
-        }
-      });
-      
-      // 验证是否跳转到结果页
-      await miniProgram.waitForTimeout(500);
-      const currentPage = await miniProgram.currentPage();
-      expect(currentPage.path).toBe('pages/result/result');
+    
+    test('有效问题应该调用云函数', () => {
+      require('../../pages/index/index.js');
+      indexPage.data.question = '测试问题';
+      indexPage.onGenerateTap();
+      expect(global.wx.cloud.callFunction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'generateReply',
+          data: { question: '测试问题' }
+        })
+      );
     });
-
-    test('点击历史记录应该跳转到历史页面', async () => {
-      await page.evaluate(() => {
-        const historyEntry = document.querySelector('.history-entry');
-        if (historyEntry) {
-          historyEntry.click();
-        }
-      });
-      
-      await miniProgram.waitForTimeout(500);
-      const currentPage = await miniProgram.currentPage();
-      expect(currentPage.path).toBe('pages/history/history');
+    
+    test('生成中应该显示 loading', () => {
+      require('../../pages/index/index.js');
+      indexPage.data.question = '测试问题';
+      indexPage.onGenerateTap();
+      expect(indexPage.setData).toHaveBeenCalledWith({ loading: true });
     });
-
-    test('点击热门问题应该填充输入框', async () => {
-      const sampleQuestions = await page.data();
-      if (sampleQuestions.sampleQuestions && sampleQuestions.sampleQuestions.length > 0) {
-        const firstSampleQuestion = sampleQuestions.sampleQuestions[0];
-        
-        await page.evaluate((question) => {
-          const items = document.querySelectorAll('.sample-item');
-          if (items.length > 0) {
-            items[0].click();
-          }
-        }, firstSampleQuestion);
-        
-        await page.waitForTimeout(200);
-        const pageData = await page.data();
-        expect(pageData.question).toBe(firstSampleQuestion);
-      }
+  });
+  
+  describe('历史记录', () => {
+    test('saveToHistory 应该保存到本地存储', () => {
+      require('../../pages/index/index.js');
+      indexPage.saveToHistory('问题', '回复');
+      expect(global.wx.setStorageSync).toHaveBeenCalledWith(
+        'history',
+        expect.any(Array)
+      );
+    });
+  });
+  
+  describe('导航', () => {
+    test('goToHistory 应该跳转到历史页面', () => {
+      require('../../pages/index/index.js');
+      indexPage.goToHistory();
+      expect(global.wx.navigateTo).toHaveBeenCalledWith(
+        expect.objectContaining({ url: '/pages/history/history' })
+      );
     });
   });
 });

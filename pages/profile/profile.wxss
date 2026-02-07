@@ -1,81 +1,228 @@
 /* pages/profile/profile.wxss */
-.profile-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40rpx;
+.container {
+  min-height: 100vh;
+  background-color: #F5F5DC;
+  padding: 20rpx;
+  padding-bottom: 120rpx;
 }
 
-.profile-avatar {
-  width: 160rpx;
-  height: 160rpx;
-  background: linear-gradient(135deg, #FF8A00, #FF6347);
-  border-radius: 50%;
+/* 用户信息卡片 */
+.user-card {
+  background: linear-gradient(135deg, #FF8A65 0%, #FF6B4A 100%);
+  border-radius: 20rpx;
+  padding: 40rpx;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 80rpx;
   margin-bottom: 20rpx;
 }
 
-.profile-name {
+.avatar-section {
+  margin-right: 30rpx;
+}
+
+.avatar {
+  font-size: 100rpx;
+  display: block;
+}
+
+.info-section {
+  flex: 1;
+}
+
+.nickname {
   font-size: 40rpx;
-  color: #f0f0f0;
-  font-weight: bold;
-  margin-bottom: 8rpx;
-}
-
-.profile-id {
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 30rpx;
-}
-
-.profile-stats {
-  display: flex;
-  gap: 60rpx;
-  width: 100%;
-  justify-content: center;
-}
-
-.profile-stat {
-  text-align: center;
-}
-
-.profile-stat-value {
-  font-size: 40rpx;
-  color: #FF8A00;
+  color: #FFFFFF;
   font-weight: bold;
   display: block;
 }
 
-.profile-stat-label {
+.user-id,
+.join-time {
   font-size: 24rpx;
-  color: #888;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+  margin-top: 8rpx;
+}
+
+/* 统计卡片 */
+.stats-card {
+  background-color: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20rpx;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #FF8A65;
+  display: block;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #8D6E63;
+  margin-top: 8rpx;
+  display: block;
+}
+
+/* 区块 */
+.section {
+  background-color: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
 }
 
 .section-title {
   font-size: 32rpx;
-  color: #f0f0f0;
-  margin: 30rpx 0 20rpx;
-  display: block;
   font-weight: bold;
+  color: #5D4037;
 }
 
-.my-question-card {
-  padding: 24rpx;
+.section-action {
+  font-size: 26rpx;
+  color: #FF8A65;
 }
 
-.my-question-text {
-  font-size: 30rpx;
-  color: #e0e0e0;
+/* 问题列表 */
+.question-list {
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.question-item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.question-item:last-child {
+  border-bottom: none;
+}
+
+.question-text {
+  font-size: 28rpx;
+  color: #5D4037;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.question-time {
+  font-size: 24rpx;
+  color: #8D6E63;
+  margin-top: 8rpx;
+  display: block;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+.empty-icon {
+  font-size: 60rpx;
   display: block;
   margin-bottom: 16rpx;
 }
 
-.my-question-meta {
+.empty-text {
+  font-size: 28rpx;
+  color: #8D6E63;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.btn-primary {
+  background-color: #FF8A65;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  padding: 16rpx 40rpx;
+  border-radius: 30rpx;
+  border: none;
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+/* 菜单列表 */
+.menu-list {
+  background-color: #FFFFFF;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.menu-item {
   display: flex;
-  justify-content: space-between;
-  font-size: 24rpx;
-  color: #666;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #F5F5DC;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #5D4037;
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: #CCC;
+}
+
+.share-btn {
+  width: 100%;
+  background: none;
+  padding: 0;
+  margin: 0;
+  line-height: inherit;
+  border-radius: 0;
+}
+
+.share-btn::after {
+  border: none;
+}
+
+/* 悬浮按钮 */
+.fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: 160rpx;
+  width: 100rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #FF8A65 0%, #FF6B4A 100%);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 138, 101, 0.4);
+}
+
+.fab text {
+  font-size: 48rpx;
 }

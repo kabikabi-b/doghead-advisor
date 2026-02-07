@@ -1,21 +1,35 @@
 {
-  "name": "doghead-advisor-e2e",
+  "name": "doghead-advisor-tests",
   "version": "1.0.0",
-  "description": "狗头军师微信小程序 E2E 测试",
+  "description": "E2E tests for 狗狗军师 WeChat Mini Program",
   "scripts": {
     "test": "jest",
     "test:e2e": "jest --testPathPattern=e2e",
-    "test:config": "jest --testPathPattern=e2e/config.spec.js"
+    "test:unit": "jest --testPathPattern=spec",
+    "test:coverage": "jest --coverage"
   },
-  "keywords": [
-    "miniprogram",
-    "e2e",
-    "test",
-    "wechat"
-  ],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "**/tests/**/*.spec.js"
+    ],
+    "collectCoverageFrom": [
+      "pages/**/*.js",
+      "utils/**/*.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  },
+  "dependencies": {
     "jest": "^29.7.0"
+  },
+  "devDependencies": {
+    "jest-environment-jsdom": "^30.2.0"
   }
 }

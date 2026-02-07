@@ -1,11 +1,18 @@
 {
   "pages": [
+<<<<<<< HEAD
     "pages/home/home",
+=======
+    "pages/index/index",
+    "pages/result/result",
+    "pages/history/history",
+>>>>>>> origin/feature/doghead-mvp
     "pages/community/community",
     "pages/leaderboard/leaderboard",
     "pages/profile/profile"
   ],
   "window": {
+<<<<<<< HEAD
     "navigationBarBackgroundColor": "#1a1a2e",
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "狗狗军师",
@@ -24,4 +31,47 @@
       { "pagePath": "pages/profile/profile", "text": "我的", "iconPath": "images/tab-profile.png", "selectedIconPath": "images/tab-profile-active.png" }
     ]
   }
+=======
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#F5F5DC",
+    "navigationBarTitleText": "狗头军师",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F5F5DC"
+  },
+  "tabBar": {
+    "color": "#8D6E63",
+    "selectedColor": "#FF8A65",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/community/community",
+        "text": "社群",
+        "iconPath": "images/community.png",
+        "selectedIconPath": "images/community-active.png"
+      },
+      {
+        "pagePath": "pages/leaderboard/leaderboard",
+        "text": "排行榜",
+        "iconPath": "images/leaderboard.png",
+        "selectedIconPath": "images/leaderboard-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/profile.png",
+        "selectedIconPath": "images/profile-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "darkmode": true
+>>>>>>> origin/feature/doghead-mvp
 }

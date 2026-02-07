@@ -1,0 +1,29 @@
+<view class="container">
+  <view class="filter-bar">
+    <text class="filter-btn {{filter==='latest'?'active':''}}" bindtap="onFilterTap" data-filter="latest">最新</text>
+    <text class="filter-btn {{filter==='hot'?'active':''}}" bindtap="onFilterTap" data-filter="hot">最热</text>
+  </view>
+  
+  <block wx:for="{{questions}}" wx:key="id">
+    <view class="card question-card" bindtap="onQuestionTap" data-id="{{item.id}}">
+      <view class="question-header">
+        <view class="anon-avatar">{{item.avatar}}</view>
+        <view class="anon-info">
+          <text class="anon-name">匿名汪汪队</text>
+          <text class="anon-time">{{item.time}}</text>
+        </view>
+        <view class="like-badge">❤️ {{item.likes}}</view>
+      </view>
+      <text class="question-text">{{item.question}}</text>
+      
+      <view class="answer-section {{expandedId===item.id?'show':''}}">
+        <text class="answer-label">💡 狗狗军师回复</text>
+        <text class="answer-text">{{item.answer}}</text>
+        <view class="vote-btns">
+          <button class="vote-btn" bindtap="onVote" data-type="question" data-id="{{item.id}}">👍 问题有趣 {{item.questionVotes}}</button>
+          <button class="vote-btn" bindtap="onVote" data-type="answer" data-id="{{item.id}}">👍 回答有趣 {{item.answerVotes}}</button>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

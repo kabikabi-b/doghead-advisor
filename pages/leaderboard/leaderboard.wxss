@@ -1,0 +1,115 @@
+/* pages/leaderboard/leaderboard.wxss */
+.top-user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx;
+  background: linear-gradient(135deg, #FF8A00, #FF6347) !important;
+  border: none !important;
+}
+
+.crown-icon {
+  font-size: 60rpx;
+  margin-bottom: 10rpx;
+}
+
+.top-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60rpx;
+  margin-bottom: 20rpx;
+}
+
+.top-name {
+  font-size: 40rpx;
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.top-badge {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 30rpx;
+}
+
+.top-stats {
+  display: flex;
+  gap: 60rpx;
+}
+
+.top-stat {
+  text-align: center;
+}
+
+.top-stat-value {
+  font-size: 48rpx;
+  color: #fff;
+  font-weight: bold;
+  display: block;
+}
+
+.top-stat-label {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.8);
+}
+
+.rank-list {
+  margin-top: 30rpx;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+}
+
+.rank-num {
+  width: 60rpx;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #888;
+  text-align: center;
+}
+
+.rank-num.gold { color: #FFD700; }
+.rank-num.silver { color: #C0C0C0; }
+.rank-num.bronze { color: #CD7F32; }
+
+.rank-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #3d3d5c, #4a4a6a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin: 0 20rpx;
+}
+
+.rank-info {
+  flex: 1;
+}
+
+.rank-name {
+  font-size: 30rpx;
+  color: #f0f0f0;
+  display: block;
+}
+
+.rank-stats {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.rank-score {
+  font-size: 32rpx;
+  color: #FF8A00;
+  font-weight: bold;
+}

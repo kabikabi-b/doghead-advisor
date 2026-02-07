@@ -1,0 +1,81 @@
+/* pages/profile/profile.wxss */
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx;
+}
+
+.profile-avatar {
+  width: 160rpx;
+  height: 160rpx;
+  background: linear-gradient(135deg, #FF8A00, #FF6347);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.profile-name {
+  font-size: 40rpx;
+  color: #f0f0f0;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.profile-id {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 30rpx;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 60rpx;
+  width: 100%;
+  justify-content: center;
+}
+
+.profile-stat {
+  text-align: center;
+}
+
+.profile-stat-value {
+  font-size: 40rpx;
+  color: #FF8A00;
+  font-weight: bold;
+  display: block;
+}
+
+.profile-stat-label {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.section-title {
+  font-size: 32rpx;
+  color: #f0f0f0;
+  margin: 30rpx 0 20rpx;
+  display: block;
+  font-weight: bold;
+}
+
+.my-question-card {
+  padding: 24rpx;
+}
+
+.my-question-text {
+  font-size: 30rpx;
+  color: #e0e0e0;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.my-question-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24rpx;
+  color: #666;
+}

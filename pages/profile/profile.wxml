@@ -1,0 +1,33 @@
+<view class="container">
+  <view class="card profile-header">
+    <view class="profile-avatar">🐕</view>
+    <text class="profile-name">卡比</text>
+    <text class="profile-id">ID: 888888</text>
+    <view class="profile-stats">
+      <view class="profile-stat">
+        <text class="profile-stat-value">23</text>
+        <text class="profile-stat-label">累计提问</text>
+      </view>
+      <view class="profile-stat">
+        <text class="profile-stat-value">156</text>
+        <text class="profile-stat-label">获得点赞</text>
+      </view>
+      <view class="profile-stat">
+        <text class="profile-stat-value">68%</text>
+        <text class="profile-stat-label">咕咕率</text>
+      </view>
+    </view>
+  </view>
+  
+  <text class="section-title">📜 我的历史提问</text>
+  
+  <block wx:for="{{myQuestions}}" wx:key="id">
+    <view class="card my-question-card" bindtap="onQuestionTap" data-id="{{item.id}}">
+      <text class="my-question-text">{{item.question}}</text>
+      <view class="my-question-meta">
+        <text>{{item.time}}</text>
+        <text>👍 {{item.likes}}</text>
+      </view>
+    </view>
+  </block>
+</view>

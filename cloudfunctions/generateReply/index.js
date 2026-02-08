@@ -62,10 +62,7 @@ exports.main = async (event, context) => {
     
     const result = await callMiniMaxAPI(question);
 
-    // 保存到数据库
-    const db = cloud.database();
-    console.log('[generateReply] 保存到数据库, _id:', questionId);
-    
+    // 必须等数据库保存成功后再返回
     await db.collection('questions').doc(questionId).set({
       data: { 
         question, 
@@ -74,11 +71,8 @@ exports.main = async (event, context) => {
         likes: 0, 
         createTime: db.serverDate() 
       }
-    }).then(() => {
-      console.log('[generateReply] ✅ 保存成功');
-    }).catch((err) => {
-      console.log('[generateReply] ❌ 保存失败:', err.message);
     });
+    console.log('[generateReply] ✅ 保存成功, _id:', questionId);
 
     return {
       success: !result.fallback,

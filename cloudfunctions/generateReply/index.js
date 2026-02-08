@@ -45,7 +45,7 @@ async function callMiniMaxAPI(question) {
   
   if (!apiKey) {
     console.log('[generateReply] ⚠️ 无 API Key，使用预设回复');
-    return generateFallbackReply(question);
+    return generateFallbackReply(question, { reason: 'NO_API_KEY' });
   }
 
   try {
@@ -120,7 +120,10 @@ async function callMiniMaxAPI(question) {
     // 仍然无法解析，输出完整响应
     console.error('[generateReply] ⚠️ 响应格式异常');
     console.error('[generateReply] ⚠️ 完整响应:', JSON.stringify(response.data, null, 2));
-    return generateFallbackReply(question);
+    return generateFallbackReply(question, { 
+      reason: 'PARSE_ERROR', 
+      response: JSON.stringify(response.data) 
+    });
   } catch (error) {
     const status = error.response?.status;
     const errorData = error.response?.data;
@@ -129,26 +132,25 @@ async function callMiniMaxAPI(question) {
     console.error('[generateReply] 错误详情:', errorData || error.message);
     
     // 详细错误诊断
+    let errorReason = 'API_ERROR';
     if (errorData && errorData.base_resp) {
       console.error('[generateReply] 状态码:', errorData.base_resp.status_code);
       console.error('[generateReply] 状态信息:', errorData.base_resp.status_msg);
       
-      // 2049 = 无效 API Key (通常是权限问题或 Key 已过期)
-      if (errorData.base_resp.status_code === 2049) {
-        console.error('[generateReply] ⚠️ API Key 错误，请检查:');
-        console.error('[generateReply] 1. API Key 是否正确');
-        console.error('[generateReply] 2. API Key 是否有 MiniMax 权限');
-        console.error('[generateReply] 3. Coding Plan 是否已过期');
-        console.error('[generateReply] 4. 是否需要重新购买/开通');
-      }
+      errorReason = `API_ERROR_${errorData.base_resp.status_code}_${errorData.base_resp.status_msg || ''}`;
     }
     
-    return generateFallbackReply(question);
+    return generateFallbackReply(question, { 
+      reason: errorReason,
+      error: errorData || error.message 
+    });
   }
 }
 
-function generateFallbackReply(question) {
+function generateFallbackReply(question, errorInfo = {}) {
   console.log('[generateReply] 🔄 使用预设回复（无 API Key 或 API 异常）');
+  console.log('[generateReply] 错误信息:', JSON.stringify(errorInfo));
+  
   const replies = [
     "我算了一卦... 你今天不适合知道答案！🔮",
     "建议你去问问楼下的垃圾桶，它知道的比我多。🗑️",
@@ -159,9 +161,13 @@ function generateFallbackReply(question) {
     "别想了，去吃顿好的比什么都强。🍕"
   ];
   const index = question.length % replies.length;
-  console.log('[generateReply] 📦 预设回复 index:', index, '问题长度:', question.length);
-  console.log('[generateReply] 📦 预设回复内容:', replies[index]);
-  return replies[index];
+  const fallback = replies[index];
+  
+  // 在预设回复中添加错误标记，便于识别
+  const debugPrefix = `❌[${errorInfo.reason || 'UNKNOWN'}]`;
+  console.log('[generateReply] 📦 预设回复:', fallback);
+  
+  return fallback;
 }
 
 exports.main = async (event, context) => {

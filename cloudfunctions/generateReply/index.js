@@ -38,26 +38,13 @@ async function callMiniMaxAPI(question) {
 
     if (response.data?.choices?.[0]?.message?.content) {
       let text = response.data.choices[0].message.content;
-      console.log('[generateReply] 原始长度:', text.length);
-      
-      // 简单过滤思考标签
-      text = text.replace(/<thinking>/gi, '');
-      text = text.replace(/<\/thinking>/gi, '');
-      text = text.replace(/<thought>/gi, '');
-      text = text.replace(/<\/thought>/gi, '');
-      text = text.replace(/<reflexion>/gi, '');
-      text = text.replace(/<\/reflexion>/gi, '');
-      text = text.replace(/\n<｜/g, '');
-      text = text.replace(/｜>\n/g, '');
-      text = text.replace(/<｜/g, '');
-      text = text.replace(/｜>/g, '');
-      text = text.trim();
-      
-      console.log('[generateReply] 过滤后长度:', text.length);
-      return { text: text || response.data.choices[0].message.content.trim(), fallback: false };
+      console.log('[generateReply] 原始内容:', text.substring(0, 300));
+      // 不做过滤，直接返回
+      return { text: text.trim(), fallback: false };
     }
     
-    return { text: '❌ 无法解析', fallback: true };
+    console.log('[generateReply] 无法解析:', JSON.stringify(response.data).substring(0, 200));
+    return { text: '❌ 无法解析响应', fallback: true };
   } catch (error) {
     console.log('[generateReply] API 错误:', error.response?.status);
     return { text: '🔮 API 暂时不可用', fallback: true };
@@ -80,7 +67,7 @@ exports.main = async (event, context) => {
       await db.collection('questions').doc(questionId).set({
         data: { question, reply: result.text, openid: wxContext.OPENID, likes: 0, createTime: db.serverDate() }
       });
-      console.log('[generateReply] ✅ 已保存');
+      console.log('[generateReply] ✅ 已保存, _id:', questionId);
     } catch (e) {
       console.log('[generateReply] 保存失败:', e.message);
     }

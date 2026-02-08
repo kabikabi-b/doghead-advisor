@@ -36,15 +36,19 @@ async function callMiniMaxAPI(question) {
   const apiKey = getApiKey();
   
   console.log('[generateReply] API Key 长度:', apiKey.length);
+  console.log('[generateReply] 问题长度:', question.length);
   
   if (!apiKey) {
-    console.log('[generateReply] 无 API Key，使用预设回复');
+    console.log('[generateReply] ⚠️ 无 API Key，使用预设回复');
     return generateFallbackReply(question);
   }
 
   try {
-    console.log('[generateReply] 正在调用 MiniMax API...');
-    
+    console.log('[generateReply] 🔄 调用 LLM...');
+    console.log('[generateReply] 📤 发送请求到 MiniMax API');
+    console.log('[generateReply] 📝 Model: abab6.5s-chat');
+    console.log('[generateReply] 📝 Temperature: 1.1');
+
     // Coding Plan 认证方式
     const response = await axios.post(MINIMAX_API_URL, {
       model: 'abab6.5s-chat',
@@ -65,15 +69,49 @@ async function callMiniMaxAPI(question) {
       timeout: 15000
     });
 
-    console.log('[generateReply] MiniMax 响应状态:', response.status);
+    console.log('[generateReply] 📥 收到响应');
+    console.log('[generateReply] ✅ MiniMax 响应状态:', response.status);
     
-    if (response.data && response.data.choices && response.data.choices.length > 0) {
-      const reply = response.data.choices[0].message.content.trim();
-      console.log('[generateReply] MiniMax 回复:', reply);
+    // 尝试多种响应格式
+    let reply = null;
+    
+    // 格式1: OpenAI 标准格式 choices[0].message.content
+    if (response.data?.choices?.[0]?.message?.content) {
+      reply = response.data.choices[0].message.content.trim();
+      console.log('[generateReply] ✅ 格式1 (message.content):', reply);
+    }
+    // 格式2: choices[0].content
+    else if (response.data?.choices?.[0]?.content) {
+      reply = response.data.choices[0].content.trim();
+      console.log('[generateReply] ✅ 格式2 (content):', reply);
+    }
+    // 格式3: choices[0].text
+    else if (response.data?.choices?.[0]?.text) {
+      reply = response.data.choices[0].text.trim();
+      console.log('[generateReply] ✅ 格式3 (text):', reply);
+    }
+    // 格式4: 直接 choices[0]
+    else if (response.data?.choices?.[0]) {
+      const choice = response.data.choices[0];
+      const keys = Object.keys(choice);
+      console.log('[generateReply] ⚠️ choices[0] 字段:', keys);
+      // 尝试获取第一个字符串字段
+      for (const key of keys) {
+        if (typeof choice[key] === 'string' && choice[key].length > 0) {
+          reply = choice[key].trim();
+          console.log('[generateReply] ✅ 格式4 (' + key + '):', reply);
+          break;
+        }
+      }
+    }
+    
+    if (reply) {
       return reply;
     }
     
-    console.log('[generateReply] MiniMax 响应格式异常，使用预设');
+    // 仍然无法解析，输出完整响应
+    console.error('[generateReply] ⚠️ 响应格式异常');
+    console.error('[generateReply] ⚠️ 完整响应:', JSON.stringify(response.data, null, 2));
     return generateFallbackReply(question);
   } catch (error) {
     console.error('[generateReply] MiniMax API 错误:', error.response?.status || error.code);
@@ -83,6 +121,7 @@ async function callMiniMaxAPI(question) {
 }
 
 function generateFallbackReply(question) {
+  console.log('[generateReply] 🔄 使用预设回复（无 API Key 或 API 异常）');
   const replies = [
     "我算了一卦... 你今天不适合知道答案！🔮",
     "建议你去问问楼下的垃圾桶，它知道的比我多。🗑️",
@@ -93,25 +132,26 @@ function generateFallbackReply(question) {
     "别想了，去吃顿好的比什么都强。🍕"
   ];
   const index = question.length % replies.length;
-  console.log('[generateReply] 使用预设回复 index:', index, '问题长度:', question.length);
+  console.log('[generateReply] 📦 预设回复 index:', index, '问题长度:', question.length);
+  console.log('[generateReply] 📦 预设回复内容:', replies[index]);
   return replies[index];
 }
 
 exports.main = async (event, context) => {
   const { question } = event;
-  
+
   console.log('[generateReply] 收到问题:', question);
-  
+
   if (!question || question.trim() === '') {
     return { success: false, error: '问题不能为空' };
   }
-  
+
   try {
     const reply = await callMiniMaxAPI(question);
     const questionId = Date.now().toString();
-    
+
     console.log('[generateReply] 最终回复:', reply);
-    
+
     return {
       success: true,
       question,

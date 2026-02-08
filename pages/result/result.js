@@ -11,6 +11,8 @@ Page({
   },
 
   onLoad(options) {
+    console.log('[result] onLoad options:', JSON.stringify(options));
+    
     if (options.question && options.reply) {
       // 过滤 think 标签
       let reply = decodeURIComponent(options.reply);
@@ -22,12 +24,16 @@ Page({
       reply = reply.replace(/&lt;｜/g, '<').replace(/｜&gt;/g, '>');
       reply = reply.trim();
       
+      console.log('[result] questionId from URL:', options.questionId);
+      
       this.setData({
         question: decodeURIComponent(options.question),
         reply: reply,
         questionId: options.questionId || ''
       });
     }
+    
+    console.log('[result] this.data.questionId:', this.data.questionId);
     
     // 加载点赞数据
     this.loadLikeData();

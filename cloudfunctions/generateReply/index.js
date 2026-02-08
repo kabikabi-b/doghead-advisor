@@ -25,7 +25,10 @@ const NONSENSICAL_PROMPT = `
 `;
 
 // MiniMax API - 支持 Coding Plan
-const MINIMAX_API_URL = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
+// Coding Plan 专用端点: https://api.minimax.chat/v1/coding/text/chatcompletion_v2
+// 常规端点: https://api.minimax.chat/v1/text/chatcompletion_v2
+const MINIMAX_API_URL_CODING = 'https://api.minimax.chat/v1/coding/text/chatcompletion_v2';
+const MINIMAX_API_URL_REGULAR = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
 
 function getApiKey() {
   // 优先从环境变量获取
@@ -43,81 +46,106 @@ async function callMiniMaxAPI(question) {
     return generateFallbackReply(question);
   }
 
-  try {
-    console.log('[generateReply] 🔄 调用 LLM...');
-    console.log('[generateReply] 📤 发送请求到 MiniMax API');
-    console.log('[generateReply] 📝 Model: abab6.5s-chat');
-    console.log('[generateReply] 📝 Temperature: 1.1');
+  // 优先尝试 Coding Plan 端点
+  const endpoints = [
+    { url: MINIMAX_API_URL_CODING, name: 'Coding Plan', isCoding: true },
+    { url: MINIMAX_API_URL_REGULAR, name: 'Regular', isCoding: false }
+  ];
 
-    // Coding Plan 认证方式
-    const response = await axios.post(MINIMAX_API_URL, {
-      model: 'abab6.5s-chat',
-      messages: [
-        {
-          role: 'user',
-          content: NONSENSICAL_PROMPT.replace('{{question}}', question)
-        }
-      ],
-      temperature: 1.1,
-      max_tokens: 200,
-      top_p: 0.9
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      timeout: 15000
-    });
+  for (const endpoint of endpoints) {
+    try {
+      console.log(`[generateReply] 🔄 调用 LLM (${endpoint.name} 端点)...`);
+      console.log('[generateReply] 📤 发送请求到:', endpoint.url);
+      console.log('[generateReply] 📝 Model: abab6.5s-chat');
+      console.log('[generateReply] 📝 Temperature: 1.1');
 
-    console.log('[generateReply] 📥 收到响应');
-    console.log('[generateReply] ✅ MiniMax 响应状态:', response.status);
-    
-    // 尝试多种响应格式
-    let reply = null;
-    
-    // 格式1: OpenAI 标准格式 choices[0].message.content
-    if (response.data?.choices?.[0]?.message?.content) {
-      reply = response.data.choices[0].message.content.trim();
-      console.log('[generateReply] ✅ 格式1 (message.content):', reply);
-    }
-    // 格式2: choices[0].content
-    else if (response.data?.choices?.[0]?.content) {
-      reply = response.data.choices[0].content.trim();
-      console.log('[generateReply] ✅ 格式2 (content):', reply);
-    }
-    // 格式3: choices[0].text
-    else if (response.data?.choices?.[0]?.text) {
-      reply = response.data.choices[0].text.trim();
-      console.log('[generateReply] ✅ 格式3 (text):', reply);
-    }
-    // 格式4: 直接 choices[0]
-    else if (response.data?.choices?.[0]) {
-      const choice = response.data.choices[0];
-      const keys = Object.keys(choice);
-      console.log('[generateReply] ⚠️ choices[0] 字段:', keys);
-      // 尝试获取第一个字符串字段
-      for (const key of keys) {
-        if (typeof choice[key] === 'string' && choice[key].length > 0) {
-          reply = choice[key].trim();
-          console.log('[generateReply] ✅ 格式4 (' + key + '):', reply);
-          break;
+      // 检测 API Key 是否已经包含 "Bearer " 前缀
+      const authHeader = apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`;
+      console.log('[generateReply] Authorization header 长度:', authHeader.length);
+
+      const response = await axios.post(endpoint.url, {
+        model: 'abab6.5s-chat',
+        messages: [
+          {
+            role: 'user',
+            content: NONSENSICAL_PROMPT.replace('{{question}}', question)
+          }
+        ],
+        temperature: 1.1,
+        max_tokens: 200,
+        top_p: 0.9
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authHeader
+        },
+        timeout: 15000
+      });
+
+      console.log('[generateReply] 📥 收到响应');
+      console.log('[generateReply] ✅ MiniMax 响应状态:', response.status);
+      
+      // 尝试多种响应格式
+      let reply = null;
+      
+      // 格式1: OpenAI 标准格式 choices[0].message.content
+      if (response.data?.choices?.[0]?.message?.content) {
+        reply = response.data.choices[0].message.content.trim();
+        console.log('[generateReply] ✅ 格式1 (message.content):', reply);
+      }
+      // 格式2: choices[0].content
+      else if (response.data?.choices?.[0]?.content) {
+        reply = response.data.choices[0].content.trim();
+        console.log('[generateReply] ✅ 格式2 (content):', reply);
+      }
+      // 格式3: choices[0].text
+      else if (response.data?.choices?.[0]?.text) {
+        reply = response.data.choices[0].text.trim();
+        console.log('[generateReply] ✅ 格式3 (text):', reply);
+      }
+      // 格式4: 直接 choices[0]
+      else if (response.data?.choices?.[0]) {
+        const choice = response.data.choices[0];
+        const keys = Object.keys(choice);
+        console.log('[generateReply] ⚠️ choices[0] 字段:', keys);
+        // 尝试获取第一个字符串字段
+        for (const key of keys) {
+          if (typeof choice[key] === 'string' && choice[key].length > 0) {
+            reply = choice[key].trim();
+            console.log('[generateReply] ✅ 格式4 (' + key + '):', reply);
+            break;
+          }
         }
       }
+      
+      if (reply) {
+        return reply;
+      }
+      
+      // 仍然无法解析，输出完整响应
+      console.error('[generateReply] ⚠️ 响应格式异常');
+      console.error('[generateReply] ⚠️ 完整响应:', JSON.stringify(response.data, null, 2));
+    } catch (error) {
+      const status = error.response?.status;
+      const errorData = error.response?.data;
+      
+      console.error(`[generateReply] ${endpoint.name} 端点错误:`, status || error.code);
+      console.error('[generateReply] 错误详情:', errorData || error.message);
+      
+      // 如果是认证错误 (401/2049)，跳过尝试下一个端点
+      if (status === 401 || (errorData && (errorData.base_resp?.status_code === 401 || errorData.base_resp?.status_code === 2049))) {
+        console.log(`[generateReply] ${endpoint.name} 端点认证失败，尝试下一个端点...`);
+        continue;
+      }
+      
+      // 其他错误直接返回预设回复
+      return generateFallbackReply(question);
     }
-    
-    if (reply) {
-      return reply;
-    }
-    
-    // 仍然无法解析，输出完整响应
-    console.error('[generateReply] ⚠️ 响应格式异常');
-    console.error('[generateReply] ⚠️ 完整响应:', JSON.stringify(response.data, null, 2));
-    return generateFallbackReply(question);
-  } catch (error) {
-    console.error('[generateReply] MiniMax API 错误:', error.response?.status || error.code);
-    console.error('[generateReply] 错误详情:', error.response?.data || error.message);
-    return generateFallbackReply(question);
   }
+  
+  // 所有端点都失败
+  console.error('[generateReply] ⚠️ 所有 MiniMax 端点都无法调用');
+  return generateFallbackReply(question);
 }
 
 function generateFallbackReply(question) {

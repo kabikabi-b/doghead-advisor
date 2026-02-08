@@ -6,17 +6,17 @@ const db = cloud.database();
 exports.main = async (event, context) => {
   const { type, id } = event;
   const wxContext = cloud.getWXContext();
-  
+
   console.log('[vote] type:', type, 'id:', id, 'OPENID:', wxContext.OPENID);
-  
+
   if (!wxContext.OPENID) {
     return { success: false, error: '未登录' };
   }
-  
+
   if (!id) {
     return { success: false, error: '缺少 ID' };
   }
-  
+
   try {
     // 检查是否已点赞
     const voteRecord = await db.collection('votes')
@@ -26,22 +26,43 @@ exports.main = async (event, context) => {
         targetType: type
       })
       .get();
-    
+
     console.log('[vote] 已有点赞记录:', voteRecord.data.length > 0);
-    
+
+    // 确定要更新的集合: type 为 'question' 时更新 questions，为 'answer' 时更新 answers
+    const targetCollection = type === 'answer' ? 'answers' : 'questions';
+    console.log('[vote] 目标集合:', targetCollection);
+
+    // 获取目标问题/答案的创建者
+    const targetDoc = await db.collection(targetCollection).doc(id).get();
+    if (!targetDoc.data || !targetDoc.data.length) {
+      console.log('[vote] 目标不存在');
+      return { success: false, error: '目标不存在' };
+    }
+    const targetCreatorOpenid = targetDoc.data[0].openid;
+    console.log('[vote] 目标创建者 openid:', targetCreatorOpenid);
+
     if (voteRecord.data.length > 0) {
       // 取消点赞
       await db.collection('votes').doc(voteRecord.data[0]._id).remove();
       console.log('[vote] 已删除 votes 记录');
-      
-      // 更新 answers 集合的 likes 字段
-      if (type === 'answer') {
-        await db.collection('answers').doc(id).update({
-          data: { likes: db.command.inc(-1) }
-        }).then(() => console.log('[vote] answers.likes -1'))
-          .catch(e => console.log('[vote] answers 更新失败:', e.message));
+
+      // 更新目标集合的 likes 字段
+      await db.collection(targetCollection).doc(id).update({
+        data: { likes: db.command.inc(-1) }
+      }).then(() => console.log(`[vote] ${targetCollection}.likes -1`))
+        .catch(e => console.log(`[vote] ${targetCollection} 更新失败:`, e.message));
+
+      // 更新创建者的 totalLikes 统计
+      if (targetCreatorOpenid) {
+        await db.collection('users').where({ openid: targetCreatorOpenid }).update({
+          data: {
+            'stats.totalLikes': db.command.inc(-1)
+          }
+        }).then(() => console.log('[vote] users.stats.totalLikes -1'))
+          .catch(e => console.log('[vote] users 更新失败:', e.message));
       }
-      
+
       return { success: true, action: 'unlike' };
     } else {
       // 添加点赞
@@ -54,15 +75,23 @@ exports.main = async (event, context) => {
         }
       });
       console.log('[vote] 已添加 votes 记录, _id:', voteResult.id);
-      
-      // 更新 answers 集合的 likes 字段
-      if (type === 'answer') {
-        await db.collection('answers').doc(id).update({
-          data: { likes: db.command.inc(1) }
-        }).then(() => console.log('[vote] answers.likes +1'))
-          .catch(e => console.log('[vote] answers 更新失败:', e.message));
+
+      // 更新目标集合的 likes 字段
+      await db.collection(targetCollection).doc(id).update({
+        data: { likes: db.command.inc(1) }
+      }).then(() => console.log(`[vote] ${targetCollection}.likes +1`))
+        .catch(e => console.log(`[vote] ${targetCollection} 更新失败:`, e.message));
+
+      // 更新创建者的 totalLikes 统计
+      if (targetCreatorOpenid) {
+        await db.collection('users').where({ openid: targetCreatorOpenid }).update({
+          data: {
+            'stats.totalLikes': db.command.inc(1)
+          }
+        }).then(() => console.log('[vote] users.stats.totalLikes +1'))
+          .catch(e => console.log('[vote] users 更新失败:', e.message));
       }
-      
+
       return { success: true, action: 'like' };
     }
   } catch (error) {

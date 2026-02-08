@@ -12,9 +12,19 @@ Page({
 
   onLoad(options) {
     if (options.question && options.reply) {
+      // 过滤 think 标签
+      let reply = decodeURIComponent(options.reply);
+      reply = reply.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
+      reply = reply.replace(/<thought>[\s\S]*?<\/thought>/gi, '');
+      reply = reply.replace(/<reflexion>[\s\S]*?<\/reflexion>/gi, '');
+      reply = reply.replace(/<｜think｜>[\s\S]*?<｜think｜>/gi, '');
+      reply = reply.replace(/<｜/g, '').replace(/｜>/g, '');
+      reply = reply.replace(/&lt;｜/g, '<').replace(/｜&gt;/g, '>');
+      reply = reply.trim();
+      
       this.setData({
         question: decodeURIComponent(options.question),
-        reply: decodeURIComponent(options.reply),
+        reply: reply,
         questionId: options.questionId || ''
       });
     }
@@ -91,9 +101,9 @@ Page({
         confirmText: '去登录',
         success: (res) => {
           if (res.confirm) {
-            // 跳转到首页（登录入口在首页）
+            // 跳转到个人页（登录入口在个人页）
             wx.switchTab({
-              url: '/pages/index/index'
+              url: '/pages/profile/profile'
             });
           }
         }
@@ -124,7 +134,7 @@ Page({
     // 调用云函数
     wx.cloud.callFunction({
       name: 'vote',
-      data: { type: 'answer', id: questionId },
+      data: { type: 'question', id: questionId },
       success: (res) => {
         console.log('[vote] 云函数返回:', res.result);
         if (res.result && !res.result.success) {

@@ -36,7 +36,11 @@ function getApiKey() {
 async function callMiniMaxAPI(question) {
   const apiKey = getApiKey();
   
+  console.log('[generateReply] ========== DEBUG START ==========');
   console.log('[generateReply] API Key 长度:', apiKey.length);
+  console.log('[generateReply] API Key 前缀:', apiKey.substring(0, 10) + '...');
+  console.log('[generateReply] API Key 包含 Bearer:', apiKey.startsWith('Bearer '));
+  console.log('[generateReply] ========== DEBUG END ==========');
   console.log('[generateReply] 问题长度:', question.length);
   
   if (!apiKey) {

@@ -4,12 +4,21 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 exports.main = async (event, context) => {
-  const { type, id } = event;
+  const { type, id, testOpenid, INTERNAL_TEST_TOKEN } = event;
   const wxContext = cloud.getWXContext();
 
-  console.log('[vote] type:', type, 'id:', id, 'OPENID:', wxContext.OPENID);
+  // DEV ONLY: 测试旁路 - 如果 INTERNAL_TEST_TOKEN 匹配，使用 testOpenid
+  let openid = wxContext.OPENID;
+  const DEV_TOKEN = process.env.INTERNAL_TEST_TOKEN || 'DEV_TEST_123';
+  
+  if (INTERNAL_TEST_TOKEN === DEV_TOKEN && testOpenid) {
+    console.log('[vote] 🧪 DEV MODE: 使用测试 OpenID');
+    openid = testOpenid;
+  }
 
-  if (!wxContext.OPENID) {
+  console.log('[vote] type:', type, 'id:', id, 'OPENID:', openid);
+
+  if (!openid) {
     return { success: false, error: '未登录' };
   }
 
@@ -21,7 +30,7 @@ exports.main = async (event, context) => {
     // 检查是否已点赞
     const voteRecord = await db.collection('votes')
       .where({
-        openid: wxContext.OPENID,
+        openid: openid,
         targetId: id,
         targetType: type
       })

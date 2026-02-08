@@ -24,12 +24,12 @@ const NONSENSICAL_PROMPT = `
 回答：
 `;
 
-// MiniMax Coding Plan API 端点列表
+// MiniMax API 端点列表
 const MINIMAX_API_URLS = [
-  'https://api.minimax.io/v1/anthropic',   // OpenAI 兼容格式
-  'https://api.minimax.io/anthropic',     // 文档格式
-  'https://api.minimaxi.com/v1/anthropic', // 中国区
-  'https://api.minimaxi.com/anthropic'     // 中国区
+  'https://api.minimax.io/v1/chat/completions',   // OpenAI 兼容
+  'https://api.minimax.io/v1/text/chatcompletion_v2', // 常规 MiniMax
+  'https://api.minimaxi.com/v1/chat/completions',   // 中国区
+  'https://api.minimaxi.com/v1/text/chatcompletion_v2' // 中国区
 ];
 const MINIMAX_MODEL = 'MiniMax-M2.1';
 
@@ -67,48 +67,48 @@ async function callMiniMaxAPI(question) {
       }, {
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
+          'Authorization': `Bearer ${apiKey}`
         },
         timeout: 15000
       });
 
       console.log('[generateReply] 📥 响应状态:', response.status);
+      console.log('[generateReply] 响应结构:', Object.keys(response.data));
 
       // 解析响应
       let reply = null;
       
-      // Anthropic 格式: content[0].text
-      if (response.data?.content?.[0]?.text) {
-        reply = response.data.content[0].text.trim();
-        console.log('[generateReply] ✅ Anthropic 格式:', reply);
-        return reply;
-      }
       // OpenAI 格式: choices[0].message.content
-      else if (response.data?.choices?.[0]?.message?.content) {
+      if (response.data?.choices?.[0]?.message?.content) {
         reply = response.data.choices[0].message.content.trim();
         console.log('[generateReply] ✅ OpenAI 格式:', reply);
         return reply;
       }
+      // MiniMax 格式: content[0].text
+      else if (response.data?.content?.[0]?.text) {
+        reply = response.data.content[0].text.trim();
+        console.log('[generateReply] ✅ MiniMax 格式:', reply);
+        return reply;
+      }
+      // choices[0].content
+      else if (response.data?.choices?.[0]?.content) {
+        reply = response.data.choices[0].content.trim();
+        console.log('[generateReply] ✅ choices.content:', reply);
+        return reply;
+      }
       
-      console.log('[generateReply] ⚠️ 无法解析响应:', JSON.stringify(response.data));
+      console.log('[generateReply] ⚠️ 响应数据:', JSON.stringify(response.data).substring(0, 500));
     } catch (error) {
       const status = error.response?.status;
       const errorData = error.response?.data;
       console.log('[generateReply] ❌ 端点失败:', apiUrl, 'status:', status);
       
-      // 404 说明端点不对，继续尝试下一个
-      if (status === 404) {
-        console.log('[generateReply] ↩️ 404，继续尝试下一个端点');
-        continue;
+      if (errorData) {
+        console.log('[generateReply] 错误数据:', JSON.stringify(errorData).substring(0, 200));
       }
-      
-      // 其他错误也继续尝试
-      console.log('[generateReply] 错误:', errorData || error.message);
     }
   }
   
-  // 所有端点都失败
   console.error('[generateReply] ❌ 所有端点都失败');
   return generateFallbackReply(question, { 
     reason: 'ALL_ENDPOINTS_FAILED',

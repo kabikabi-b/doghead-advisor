@@ -12,7 +12,12 @@
     "test:coverage": "jest --config tests/jest.config.js --coverage",
     "test:result": "jest --config tests/jest.config.js tests/e2e/result.spec.js",
     "test:profile": "jest --config tests/jest.config.js tests/e2e/profile.spec.js",
-    "test:cloud": "jest --config tests/jest.config.js tests/e2e/cloudfunctions.spec.js"
+    "test:cloud": "jest --config tests/jest.config.js tests/e2e/cloudfunctions.spec.js",
+    "deploy": "node scripts/deploy.js",
+    "deploy:cli": "bash scripts/deploy-cli.sh",
+    "deploy:login": "bash scripts/deploy-cli.sh login",
+    "deploy:local": "node scripts/deploy.js local",
+    "deploy:ci": "bash scripts/deploy-cli.sh deploy-ci"
   },
   "repository": {
     "type": "git",

@@ -57,17 +57,12 @@ exports.main = async (event, context) => {
   if (!question) return { success: false, error: '问题不能为空' };
 
   try {
-    // 使用时间戳作为 _id
-    const docId = Date.now().toString();
-    console.log('[generateReply] _id:', docId);
-    
     const result = await callMiniMaxAPI(question);
 
-    // 保存时使用 _id 字段明确指定
+    // 使用 add() 让 CloudBase 自动生成正确的 _id
     const db = cloud.database();
-    await db.collection('questions').add({
+    const addRes = await db.collection('questions').add({
       data: { 
-        _id: docId,  // 明确指定 _id
         question, 
         reply: result.text, 
         openid: wxContext.OPENID, 
@@ -75,13 +70,14 @@ exports.main = async (event, context) => {
         createTime: db.serverDate() 
       }
     });
-    console.log('[generateReply] ✅ 保存成功, _id:', docId);
+    
+    console.log('[generateReply] ✅ 保存成功, _id:', addRes.id);
 
     return {
       success: !result.fallback,
       question,
       reply: result.text,
-      questionId: docId
+      questionId: addRes.id  // 返回自动生成的 ID
     };
   } catch (error) {
     console.log('[generateReply] 失败:', error.message);

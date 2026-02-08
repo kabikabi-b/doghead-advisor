@@ -37,7 +37,13 @@ async function callMiniMaxAPI(question) {
     });
 
     if (response.data?.choices?.[0]?.message?.content) {
-      return { fallback: false, text: response.data.choices[0].message.content.trim() };
+      let text = response.data.choices[0].message.content.trim();
+      // 过滤 <think>...</think> 思考标签
+      text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
+      text = text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
+      text = text.trim();
+      console.log('[generateReply] ✅ OpenAI 格式:', text);
+      return { fallback: false, text };
     }
     
     return { fallback: true, text: '❌ 无法解析响应', reason: 'PARSE_ERROR', raw: JSON.stringify(response.data) };

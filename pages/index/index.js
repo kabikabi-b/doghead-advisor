@@ -51,9 +51,7 @@ Page({
       if (result.success === true) {
         const { reply, questionId } = result;
         console.log('[onGenerateTap] 成功! reply:', reply);
-        
-        // 保存到本地和云数据库
-        this.saveToHistory(question, reply);
+        console.log('[onGenerateTap] questionId:', questionId);
         
         // 跳转结果页 - 使用绝对路径
         const url = '/pages/result/result?question=' + encodeURIComponent(question) + '&reply=' + encodeURIComponent(reply) + '&questionId=' + (questionId || '');

@@ -24,8 +24,13 @@ const NONSENSICAL_PROMPT = `
 回答：
 `;
 
-// MiniMax Coding Plan API (Anthropic 兼容格式)
-const MINIMAX_API_URL = 'https://api.minimax.io/anthropic';
+// MiniMax Coding Plan API 端点列表
+const MINIMAX_API_URLS = [
+  'https://api.minimax.io/v1/anthropic',   // OpenAI 兼容格式
+  'https://api.minimax.io/anthropic',     // 文档格式
+  'https://api.minimaxi.com/v1/anthropic', // 中国区
+  'https://api.minimaxi.com/anthropic'     // 中国区
+];
 const MINIMAX_MODEL = 'MiniMax-M2.1';
 
 function getApiKey() {
@@ -36,7 +41,6 @@ async function callMiniMaxAPI(question) {
   const apiKey = getApiKey();
   
   console.log('[generateReply] ========== DEBUG ==========');
-  console.log('[generateReply] API URL:', MINIMAX_API_URL);
   console.log('[generateReply] Model:', MINIMAX_MODEL);
   console.log('[generateReply] API Key 长度:', apiKey.length);
   console.log('[generateReply] API Key 前缀:', apiKey.substring(0, 10) + '...');
@@ -45,64 +49,71 @@ async function callMiniMaxAPI(question) {
     return generateFallbackReply(question, { reason: 'NO_API_KEY' });
   }
 
-  try {
-    console.log('[generateReply] 🔄 调用 LLM (Anthropic 格式)...');
+  // 尝试多个端点
+  for (const apiUrl of MINIMAX_API_URLS) {
+    try {
+      console.log('[generateReply] 🔄 尝试端点:', apiUrl);
 
-    // Anthropic API 格式
-    const response = await axios.post(MINIMAX_API_URL, {
-      model: MINIMAX_MODEL,
-      max_tokens: 200,
-      temperature: 1.1,
-      messages: [
-        {
-          role: 'user',
-          content: NONSENSICAL_PROMPT.replace('{{question}}', question)
-        }
-      ]
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      timeout: 15000
-    });
+      const response = await axios.post(apiUrl, {
+        model: MINIMAX_MODEL,
+        max_tokens: 200,
+        temperature: 1.1,
+        messages: [
+          {
+            role: 'user',
+            content: NONSENSICAL_PROMPT.replace('{{question}}', question)
+          }
+        ]
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        timeout: 15000
+      });
 
-    console.log('[generateReply] 📥 响应状态:', response.status);
+      console.log('[generateReply] 📥 响应状态:', response.status);
 
-    // 解析 Anthropic 响应格式: content[0].text
-    let reply = null;
-    
-    if (response.data?.content?.[0]?.text) {
-      reply = response.data.content[0].text.trim();
-      console.log('[generateReply] ✅ Anthropic 格式:', reply);
+      // 解析响应
+      let reply = null;
+      
+      // Anthropic 格式: content[0].text
+      if (response.data?.content?.[0]?.text) {
+        reply = response.data.content[0].text.trim();
+        console.log('[generateReply] ✅ Anthropic 格式:', reply);
+        return reply;
+      }
+      // OpenAI 格式: choices[0].message.content
+      else if (response.data?.choices?.[0]?.message?.content) {
+        reply = response.data.choices[0].message.content.trim();
+        console.log('[generateReply] ✅ OpenAI 格式:', reply);
+        return reply;
+      }
+      
+      console.log('[generateReply] ⚠️ 无法解析响应:', JSON.stringify(response.data));
+    } catch (error) {
+      const status = error.response?.status;
+      const errorData = error.response?.data;
+      console.log('[generateReply] ❌ 端点失败:', apiUrl, 'status:', status);
+      
+      // 404 说明端点不对，继续尝试下一个
+      if (status === 404) {
+        console.log('[generateReply] ↩️ 404，继续尝试下一个端点');
+        continue;
+      }
+      
+      // 其他错误也继续尝试
+      console.log('[generateReply] 错误:', errorData || error.message);
     }
-    // OpenAI 兼容格式
-    else if (response.data?.choices?.[0]?.message?.content) {
-      reply = response.data.choices[0].message.content.trim();
-      console.log('[generateReply] ✅ OpenAI 格式:', reply);
-    }
-    else if (reply) {
-      return reply;
-    }
-    
-    console.error('[generateReply] ⚠️ 无法解析响应');
-    return generateFallbackReply(question, { 
-      reason: 'PARSE_ERROR', 
-      error: JSON.stringify(response.data) 
-    });
-  } catch (error) {
-    const status = error.response?.status;
-    const errorData = error.response?.data;
-    
-    console.error('[generateReply] API 错误:', status || error.code);
-    console.error('[generateReply] 错误详情:', errorData || error.message);
-    
-    return generateFallbackReply(question, { 
-      reason: `API_ERROR_${status || 'UNKNOWN'}`,
-      error: errorData ? JSON.stringify(errorData) : error.message
-    });
   }
+  
+  // 所有端点都失败
+  console.error('[generateReply] ❌ 所有端点都失败');
+  return generateFallbackReply(question, { 
+    reason: 'ALL_ENDPOINTS_FAILED',
+    error: '尝试了 ' + MINIMAX_API_URLS.length + ' 个端点都失败'
+  });
 }
 
 function generateFallbackReply(question, errorInfo = {}) {

@@ -81,6 +81,26 @@ Page({
 
   // 点赞
   onLikeTap() {
+    // 检查是否登录
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo || !userInfo.nickName) {
+      console.log('[vote] 用户未登录');
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再点赞',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            // 跳转到首页（登录入口在首页）
+            wx.switchTab({
+              url: '/pages/index/index'
+            });
+          }
+        }
+      });
+      return;
+    }
+    
     const { questionId, liked } = this.data;
     if (!questionId) {
       console.error('[vote] 缺少 questionId');

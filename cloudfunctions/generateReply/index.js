@@ -22,7 +22,7 @@ async function callMiniMaxAPI(question) {
   console.log('[generateReply] Key:', apiKey.substring(0, 10) + '...');
   
   if (!apiKey) {
-    return { fallback: true, text: '🔮 请配置 API Key', reason: 'NO_KEY' };
+    return { text: '🔮 请配置 API Key', fallback: true };
   }
 
   try {
@@ -40,28 +40,27 @@ async function callMiniMaxAPI(question) {
       let text = response.data.choices[0].message.content;
       console.log('[generateReply] 原始长度:', text.length);
       
-      // 过滤思考标签
-      text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
-      text = text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
-      text = text.replace(/<thought>[\s\S]*?<\/thought>/gi, '');
-      text = text.replace(/<reflexion>[\s\S]*?<\/reflexion>/gi, '');
-      text = text.replace(/\n?<delete_file>\n?/gi, '');
-      text = text.replace(/\n?<｜think｜>\n?/gi, '');
-      text = text.replace(/<｜think｜>[\s\S]*?<｜think｜>/gi, '');
+      // 简单过滤思考标签
+      text = text.replace(/<thinking>/gi, '');
+      text = text.replace(/<\/thinking>/gi, '');
+      text = text.replace(/<thought>/gi, '');
+      text = text.replace(/<\/thought>/gi, '');
+      text = text.replace(/<reflexion>/gi, '');
+      text = text.replace(/<\/reflexion>/gi, '');
+      text = text.replace(/\n<｜/g, '');
+      text = text.replace(/｜>\n/g, '');
+      text = text.replace(/<｜/g, '');
+      text = text.replace(/｜>/g, '');
       text = text.trim();
       
       console.log('[generateReply] 过滤后长度:', text.length);
-      
-      // 无论是否过滤成功都返回
-      return { fallback: false, text: text || response.data.choices[0].message.content.trim() };
+      return { text: text || response.data.choices[0].message.content.trim(), fallback: false };
     }
     
-    return { fallback: true, text: '❌ 无法解析', reason: 'PARSE_ERROR', raw: JSON.stringify(response.data) };
+    return { text: '❌ 无法解析', fallback: true };
   } catch (error) {
-    const status = error.response?.status;
-    const errorData = error.response?.data;
-    console.log('[generateReply] API 错误:', status, errorData?.message || errorData);
-    return { fallback: true, text: '🔮 API 暂时不可用', reason: `API_ERROR_${status}`, error: errorData?.message || errorData };
+    console.log('[generateReply] API 错误:', error.response?.status);
+    return { text: '🔮 API 暂时不可用', fallback: true };
   }
 }
 
@@ -75,7 +74,7 @@ exports.main = async (event, context) => {
     const questionId = Date.now().toString();
     const result = await callMiniMaxAPI(question);
 
-    // 保存到数据库
+    // 保存
     try {
       const db = cloud.database();
       await db.collection('questions').doc(questionId).set({
@@ -90,9 +89,7 @@ exports.main = async (event, context) => {
       success: !result.fallback,
       question,
       reply: result.text,
-      questionId,
-      fallback: result.fallback,
-      reason: result.reason
+      questionId
     };
   } catch (error) {
     return { success: false, error: '生成回复失败' };

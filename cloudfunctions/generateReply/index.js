@@ -122,7 +122,7 @@ async function callMiniMaxAPI(question) {
     console.error('[generateReply] ⚠️ 完整响应:', JSON.stringify(response.data, null, 2));
     return generateFallbackReply(question, { 
       reason: 'PARSE_ERROR', 
-      response: JSON.stringify(response.data) 
+      error: JSON.stringify(response.data)
     });
   } catch (error) {
     const status = error.response?.status;

@@ -19,7 +19,7 @@ function getApiKey() {
 
 async function callMiniMaxAPI(question) {
   const apiKey = getApiKey();
-  console.log('[generateReply] Key:', apiKey.substring(0, 10) + '...');
+  console.log('[generateReply] Key 长度:', apiKey.length);
   
   if (!apiKey) {
     return { text: '🔮 请配置 API Key', fallback: true };
@@ -38,13 +38,12 @@ async function callMiniMaxAPI(question) {
 
     if (response.data?.choices?.[0]?.message?.content) {
       let text = response.data.choices[0].message.content;
-      console.log('[generateReply] 原始内容:', text.substring(0, 300));
-      // 不做过滤，直接返回
+      console.log('[generateReply] 原始:', text.substring(0, 200));
       return { text: text.trim(), fallback: false };
     }
     
     console.log('[generateReply] 无法解析:', JSON.stringify(response.data).substring(0, 200));
-    return { text: '❌ 无法解析响应', fallback: true };
+    return { text: '❌ 无法解析', fallback: true };
   } catch (error) {
     console.log('[generateReply] API 错误:', error.response?.status);
     return { text: '🔮 API 暂时不可用', fallback: true };
@@ -59,18 +58,27 @@ exports.main = async (event, context) => {
 
   try {
     const questionId = Date.now().toString();
+    console.log('[generateReply] questionId:', questionId);
+    
     const result = await callMiniMaxAPI(question);
 
-    // 保存
-    try {
-      const db = cloud.database();
-      await db.collection('questions').doc(questionId).set({
-        data: { question, reply: result.text, openid: wxContext.OPENID, likes: 0, createTime: db.serverDate() }
-      });
-      console.log('[generateReply] ✅ 已保存, _id:', questionId);
-    } catch (e) {
-      console.log('[generateReply] 保存失败:', e.message);
-    }
+    // 保存到数据库
+    const db = cloud.database();
+    console.log('[generateReply] 保存到数据库, _id:', questionId);
+    
+    await db.collection('questions').doc(questionId).set({
+      data: { 
+        question, 
+        reply: result.text, 
+        openid: wxContext.OPENID, 
+        likes: 0, 
+        createTime: db.serverDate() 
+      }
+    }).then(() => {
+      console.log('[generateReply] ✅ 保存成功');
+    }).catch((err) => {
+      console.log('[generateReply] ❌ 保存失败:', err.message);
+    });
 
     return {
       success: !result.fallback,
@@ -79,6 +87,7 @@ exports.main = async (event, context) => {
       questionId
     };
   } catch (error) {
+    console.log('[generateReply] 失败:', error.message);
     return { success: false, error: '生成回复失败' };
   }
 };

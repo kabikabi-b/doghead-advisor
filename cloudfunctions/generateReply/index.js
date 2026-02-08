@@ -161,9 +161,11 @@ function generateFallbackReply(question) {
 }
 
 exports.main = async (event, context) => {
+  const wxContext = cloud.getWXContext();
   const { question } = event;
 
   console.log('[generateReply] 收到问题:', question);
+  console.log('[generateReply] OPENID:', wxContext.OPENID);
 
   if (!question || question.trim() === '') {
     return { success: false, error: '问题不能为空' };
@@ -174,6 +176,25 @@ exports.main = async (event, context) => {
     const questionId = Date.now().toString();
 
     console.log('[generateReply] 最终回复:', reply);
+
+    // 保存问题到数据库
+    try {
+      const db = cloud.database();
+      await db.collection('questions').add({
+        data: {
+          _id: questionId,
+          question: question,
+          reply: reply,
+          openid: wxContext.OPENID,
+          likes: 0,
+          createTime: db.serverDate()
+        }
+      });
+      console.log('[generateReply] ✅ 问题已保存到数据库, _id:', questionId);
+    } catch (saveError) {
+      console.error('[generateReply] ❌ 保存问题失败:', saveError);
+      // 不影响返回结果，只是点赞功能会失败
+    }
 
     return {
       success: true,

@@ -35,11 +35,11 @@ exports.main = async (event, context) => {
 
     // 获取目标问题/答案的创建者
     const targetDoc = await db.collection(targetCollection).doc(id).get();
-    if (!targetDoc.data || !targetDoc.data.length) {
+    if (!targetDoc.data) {
       console.log('[vote] 目标不存在');
       return { success: false, error: '目标不存在' };
     }
-    const targetCreatorOpenid = targetDoc.data[0].openid;
+    const targetCreatorOpenid = targetDoc.data.openid;
     console.log('[vote] 目标创建者 openid:', targetCreatorOpenid);
 
     if (voteRecord.data.length > 0) {

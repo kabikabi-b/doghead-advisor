@@ -24,11 +24,10 @@ const NONSENSICAL_PROMPT = `
 回答：
 `;
 
-// MiniMax API - 支持 Coding Plan
-// Coding Plan 专用端点: https://api.minimax.chat/v1/coding/text/chatcompletion_v2
-// 常规端点: https://api.minimax.chat/v1/text/chatcompletion_v2
-const MINIMAX_API_URL_CODING = 'https://api.minimax.chat/v1/coding/text/chatcompletion_v2';
-const MINIMAX_API_URL_REGULAR = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
+// MiniMax API
+// 端点: https://api.minimax.chat/v1/text/chatcompletion_v2
+// 注: Coding Plan 和常规 API 使用同一端点，区别在于 API Key 权限
+const MINIMAX_API_URL = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
 
 function getApiKey() {
   // 优先从环境变量获取
@@ -132,13 +131,14 @@ async function callMiniMaxAPI(question) {
       console.error(`[generateReply] ${endpoint.name} 端点错误:`, status || error.code);
       console.error('[generateReply] 错误详情:', errorData || error.message);
       
-      // 如果是认证错误 (401/2049)，跳过尝试下一个端点
-      if (status === 401 || (errorData && (errorData.base_resp?.status_code === 401 || errorData.base_resp?.status_code === 2049))) {
-        console.log(`[generateReply] ${endpoint.name} 端点认证失败，尝试下一个端点...`);
+      // 如果是认证错误 (401/2049) 或 404，尝试下一个端点
+      if (status === 401 || status === 404 || (errorData && (errorData.base_resp?.status_code === 401 || errorData.base_resp?.status_code === 2049))) {
+        console.log(`[generateReply] ${endpoint.name} 端点失败 (${status})，尝试下一个端点...`);
         continue;
       }
       
-      // 其他错误直接返回预设回复
+      // 其他严重错误（如网络超时）直接返回预设回复
+      console.log(`[generateReply] ${endpoint.name} 端点严重错误，停止尝试`);
       return generateFallbackReply(question);
     }
   }

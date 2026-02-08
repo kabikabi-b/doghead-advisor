@@ -172,12 +172,15 @@ exports.main = async (event, context) => {
   }
 
   try {
-    const reply = await callMiniMaxAPI(question);
+    // 先生成 questionId，确保在保存前就生成
     const questionId = Date.now().toString();
+    console.log('[generateReply] questionId:', questionId);
+
+    const reply = await callMiniMaxAPI(question);
 
     console.log('[generateReply] 最终回复:', reply);
 
-    // 保存问题到数据库
+    // 保存问题到数据库（重要：必须保存，否则点赞功能无法使用）
     try {
       const db = cloud.database();
       await db.collection('questions').add({
@@ -193,7 +196,15 @@ exports.main = async (event, context) => {
       console.log('[generateReply] ✅ 问题已保存到数据库, _id:', questionId);
     } catch (saveError) {
       console.error('[generateReply] ❌ 保存问题失败:', saveError);
-      // 不影响返回结果，只是点赞功能会失败
+      // 即使保存失败也返回成功（但用户点赞会失败）
+      return {
+        success: true,
+        question,
+        reply,
+        questionId,
+        saved: false,
+        error: '问题已回答但未保存数据库，点赞功能不可用'
+      };
     }
 
     return {

@@ -163,11 +163,15 @@ function generateFallbackReply(question, errorInfo = {}) {
   const index = question.length % replies.length;
   const fallback = replies[index];
   
-  // 在预设回复中添加错误标记，便于识别
-  const debugPrefix = `❌[${errorInfo.reason || 'UNKNOWN'}]`;
   console.log('[generateReply] 📦 预设回复:', fallback);
   
-  return fallback;
+  // 返回详细信息，便于调试
+  return {
+    _fallback: true,
+    _reason: errorInfo.reason || 'UNKNOWN',
+    _error: errorInfo.error || null,
+    text: fallback
+  };
 }
 
 exports.main = async (event, context) => {
@@ -188,6 +192,21 @@ exports.main = async (event, context) => {
 
     const reply = await callMiniMaxAPI(question);
 
+    // 如果返回的是对象（包含 _fallback），说明是预设回复
+    if (typeof reply === 'object' && reply._fallback) {
+      console.log('[generateReply] ⚠️ 使用预设回复，错误原因:', reply._reason);
+      return {
+        success: false,
+        question,
+        reply: reply.text,
+        questionId,
+        fallback: true,
+        error: reply._reason,
+        details: reply._error
+      };
+    }
+
+    // 正常 LLM 回复
     console.log('[generateReply] 最终回复:', reply);
 
     // 保存问题到数据库（重要：必须保存，否则点赞功能无法使用）
@@ -197,7 +216,7 @@ exports.main = async (event, context) => {
         data: {
           _id: questionId,
           question: question,
-          reply: reply,
+          reply: typeof reply === 'string' ? reply : JSON.stringify(reply),
           openid: wxContext.OPENID,
           likes: 0,
           createTime: db.serverDate()
@@ -210,7 +229,7 @@ exports.main = async (event, context) => {
       return {
         success: true,
         question,
-        reply,
+        reply: typeof reply === 'string' ? reply : JSON.stringify(reply),
         questionId,
         saved: false,
         error: '问题已回答但未保存数据库，点赞功能不可用'

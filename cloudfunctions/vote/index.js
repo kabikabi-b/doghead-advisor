@@ -56,11 +56,16 @@ exports.main = async (event, context) => {
       await db.collection('votes').doc(voteRecord.data[0]._id).remove();
       console.log('[vote] 已删除 votes 记录');
 
-      // 更新目标集合的 likes 字段
-      await db.collection(targetCollection).doc(id).update({
-        data: { likes: db.command.inc(-1) }
-      }).then(() => console.log(`[vote] ${targetCollection}.likes -1`))
-        .catch(e => console.log(`[vote] ${targetCollection} 更新失败:`, e.message));
+      // 更新目标集合的 likes 字段（使用 upsert 防止文档不存在）
+      try {
+        await db.collection(targetCollection).doc(id).set({
+          data: { likes: db.command.inc(-1) },
+          upsert: true
+        });
+        console.log(`[vote] ${targetCollection}.likes -1 (upsert)`);
+      } catch (e) {
+        console.log(`[vote] ${targetCollection} 更新失败:`, e.message);
+      }
 
       // 更新创建者的 totalLikes 统计
       if (targetCreatorOpenid) {
@@ -77,7 +82,7 @@ exports.main = async (event, context) => {
       // 添加点赞
       const voteResult = await db.collection('votes').add({
         data: {
-          openid: wxContext.OPENID,
+          openid: openid,  // 使用正确的 openid
           targetId: id,
           targetType: type,
           createTime: new Date()
@@ -85,11 +90,16 @@ exports.main = async (event, context) => {
       });
       console.log('[vote] 已添加 votes 记录, _id:', voteResult.id);
 
-      // 更新目标集合的 likes 字段
-      await db.collection(targetCollection).doc(id).update({
-        data: { likes: db.command.inc(1) }
-      }).then(() => console.log(`[vote] ${targetCollection}.likes +1`))
-        .catch(e => console.log(`[vote] ${targetCollection} 更新失败:`, e.message));
+      // 更新目标集合的 likes 字段（使用 upsert 防止文档不存在）
+      try {
+        await db.collection(targetCollection).doc(id).set({
+          data: { likes: db.command.inc(1) },
+          upsert: true
+        });
+        console.log(`[vote] ${targetCollection}.likes +1 (upsert)`);
+      } catch (e) {
+        console.log(`[vote] ${targetCollection} 更新失败:`, e.message);
+      }
 
       // 更新创建者的 totalLikes 统计
       if (targetCreatorOpenid) {

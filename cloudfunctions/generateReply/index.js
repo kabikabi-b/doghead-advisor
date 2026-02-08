@@ -37,12 +37,16 @@ async function callMiniMaxAPI(question) {
     });
 
     if (response.data?.choices?.[0]?.message?.content) {
-      let text = response.data.choices[0].message.content.trim();
-      // 过滤 <think>...</think> 思考标签
+      let text = response.data.choices[0].message.content;
+      // 过滤思考标签
       text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
       text = text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
       text = text.trim();
-      console.log('[generateReply] ✅ OpenAI 格式:', text);
+      console.log('[generateReply] ✅ OpenAI 格式:', text.substring(0, 100));
+      // 防止空文本
+      if (!text) {
+        return { fallback: true, text: '🔮 AI 正在思考中...', reason: 'EMPTY_AFTER_FILTER' };
+      }
       return { fallback: false, text };
     }
     

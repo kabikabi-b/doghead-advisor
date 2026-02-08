@@ -83,13 +83,13 @@ exports.main = async (event, context) => {
       };
     }
 
-    // 保存到数据库
+    // 保存到数据库（使用 set 确保 _id 正确）
     try {
       const db = cloud.database();
-      await db.collection('questions').add({
-        data: { _id: questionId, question, reply: result.text, openid: wxContext.OPENID, likes: 0, createTime: db.serverDate() }
+      await db.collection('questions').doc(questionId).set({
+        data: { question, reply: result.text, openid: wxContext.OPENID, likes: 0, createTime: db.serverDate() }
       });
-      console.log('[generateReply] ✅ 已保存');
+      console.log('[generateReply] ✅ 已保存, _id:', questionId);
     } catch (e) {
       console.log('[generateReply] 保存失败:', e.message);
     }

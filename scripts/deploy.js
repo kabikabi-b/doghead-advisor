@@ -5,11 +5,36 @@
  * 
  * 方案说明:
  * - 本地开发: 使用微信开发者工具手动部署
- * - CI/CD: 使用微信云开发 HTTP API
+ * - CI/CD: 使用 miniprogram-ci 自动化部署
  * 
  * 使用方法:
- * 1. 本地部署: node scripts/deploy-local.js
- * 2. CI/CD: node scripts/deploy-ci.js
+ *   node scripts/deploy.js <命令>
+ * 
+ * 命令:
+ *   local     本地部署 (显示部署提示)
+ *   ci        CI/CD 部署 (需要环境变量)
+ *   cli       安装微信 CLI 工具
+ *   verify    验证部署状态
+ *   help      显示帮助
+ * 
+ * 环境变量 (CI/CD 模式):
+ *   WECHAT_ENV_ID        云开发环境 ID
+ *   WECHAT_APPID         小程序 AppID
+ *   WECHAT_PRIVATE_KEY_PATH  微信私钥路径
+ * 
+ * 示例:
+ *   # 本地开发 - 显示部署提示
+ *   node scripts/deploy.js local
+ *   
+ *   # CI/CD - 需要先配置环境变量
+ *   export WECHAT_ENV_ID=doghead-advisor
+ *   export WECHAT_APPID=wx3ae4dfecd97351ea
+ *   export WECHAT_PRIVATE_KEY_PATH=./private.key
+ *   node scripts/deploy.js ci
+ *   
+ *   # 使用 npm 脚本
+ *   npm run deploy:local
+ *   npm run deploy:ci
  */
 
 const { execSync } = require('child_process');
@@ -52,14 +77,14 @@ function localDeploy() {
   log('');
   log('步骤:');
   log('1. 打开微信开发者工具');
-  log('2. 导入项目: ' + PROJECT_DIR);
+  log(`2. 导入项目: ${PROJECT_DIR}`);
   log('3. 右键点击 cloudfunctions/generateReply');
   log('4. 选择 "上传并部署：云端安装依赖"');
   log('5. 重复步骤 3-4 部署其他云函数');
   log('');
   log('或者使用命令行:');
-  log('  # 启动开发者工具 (需要安装微信 CLI)');
-  log('  npm run deploy:cli');
+  log('  # 启动开发者工具');
+  log('  npm run deploy:cli && npm run deploy:login');
   log('');
   
   // 打印云函数列表
@@ -72,91 +97,67 @@ function localDeploy() {
 }
 
 /**
- * CI/CD 部署 - 使用微信云开发 API
+ * CI/CD 部署 - 使用 miniprogram-ci
  */
 function ciDeploy() {
   logSection('🚀 CI/CD 云函数部署');
   
-  const envId = process.env.WECHAT_ENV_ID;
+  const envId = process.env.WECHAT_ENV_ID || 'doghead-advisor';
   const appid = process.env.WECHAT_APPID;
-  const privateKey = process.env.WECHAT_PRIVATE_KEY;
+  const privateKeyPath = process.env.WECHAT_PRIVATE_KEY_PATH;
+  const projectPath = process.env.WECHAT_PROJECT_PATH || PROJECT_DIR;
   
-  if (!envId || !appid || !privateKey) {
+  if (!appid || !privateKeyPath) {
     log('❌ 缺少必要的环境变量');
     log('');
     log('请设置以下环境变量:');
     log('  WECHAT_ENV_ID=your-env-id');
     log('  WECHAT_APPID=your-appid');
-    log('  WECHAT_PRIVATE_KEY=your-private-key');
+    log('  WECHAT_PRIVATE_KEY_PATH=./private.key');
     log('');
-    log('或在 .env 文件中配置:');
-    log('  WECHAT_ENV_ID=your-env-id');
-    log('  WECHAT_APPID=your-appid');
-    log('  WECHAT_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----\n...');
+    log('或在 .env 文件中配置 (复制 .env.example 为 .env):');
+    log('');
+    log('示例 .env 文件:');
+    log('  WECHAT_ENV_ID=doghead-advisor');
+    log('  WECHAT_APPID=wx3ae4dfecd97351ea');
+    log('  WECHAT_PRIVATE_KEY_PATH=./private.key');
+    log('  WECHAT_PROJECT_PATH=.');
     process.exit(1);
   }
   
   log(`环境 ID: ${envId}`);
   log(`AppID: ${appid}`);
+  log(`项目路径: ${projectPath}`);
+  log(`私钥路径: ${privateKeyPath}`);
   log('');
   
-  // 部署每个云函数
-  let successCount = 0;
-  let failCount = 0;
-  
-  for (const funcName of CLOUDFUNCTIONS) {
-    const funcPath = path.join(CLOUDFUNCTIONS_DIR, funcName);
-    
-    if (!fs.existsSync(funcPath)) {
-      log(`❌ 云函数不存在: ${funcName}`);
-      failCount++;
-      continue;
-    }
-    
-    log(`📦 处理云函数: ${funcName}`);
-    
-    try {
-      // 1. 安装依赖
-      log(`  ⏬ 安装依赖...`);
-      execSync('npm install --production', {
-        cwd: funcPath,
-        stdio: 'pipe'
-      });
-      
-      // 2. 打包云函数
-      log(`  📦 打包云函数...`);
-      const tarPath = path.join(funcPath, `${funcName}.zip`);
-      
-      // 创建打包脚本
-      const packScript = `
-        cd ${funcPath}
-        zip -r ${tarPath} index.js package.json package-lock.json node_modules -x "*.map" "*.log"
-      `;
-      
-      execSync(packScript, { shell: '/bin/bash', stdio: 'pipe' });
-      
-      log(`  ✅ 云函数已打包: ${tarPath}`);
-      
-      // 3. 使用云开发 API 上传
-      // 注意: 这里需要使用微信云开发的 HTTP API
-      // 实际使用时需要调用对应的 API
-      log(`  ⚠️  请使用微信云开发控制台或 API 上传`);
-      log(`  📝 文件路径: ${tarPath}`);
-      
-      successCount++;
-    } catch (error) {
-      log(`  ❌ 处理失败: ${error.message}`);
-      failCount++;
-    }
-    
+  // 验证私钥文件
+  const fullKeyPath = path.resolve(projectPath, privateKeyPath);
+  if (!fs.existsSync(fullKeyPath)) {
+    log(`❌ 私钥文件不存在: ${fullKeyPath}`);
     log('');
+    log('请从微信公众平台下载私钥:');
+    log('  1. 登录 https://mp.weixin.qq.com/');
+    log('  2. 进入「开发管理」-「开发设置」');
+    log('  3. 下载「小程序代码上传密钥」');
+    log('  4. 将密钥文件保存到项目根目录');
+    process.exit(1);
   }
   
-  logSection('📊 部署摘要');
-  log(`成功: ${successCount}`);
-  log(`失败: ${failCount}`);
+  log('✅ 私钥文件存在');
+  log('');
   
-  if (failCount > 0) {
+  // 调用 CI 部署脚本
+  const ciScript = path.join(__dirname, 'deploy-ci.js');
+  if (fs.existsSync(ciScript)) {
+    try {
+      require('./deploy-ci');
+    } catch (error) {
+      log(`❌ CI 部署失败: ${error.message}`);
+      process.exit(1);
+    }
+  } else {
+    log('⚠️ CI 部署脚本不存在，请先运行: npm install');
     process.exit(1);
   }
 }
@@ -246,19 +247,26 @@ function main() {
   help      显示帮助
 
 环境变量 (CI/CD 模式):
-  WECHAT_ENV_ID        云开发环境 ID
-  WECHAT_APPID         小程序 AppID
-  WECHAT_PRIVATE_KEY    微信私钥
+  WECHAT_ENV_ID           云开发环境 ID
+  WECHAT_APPID            小程序 AppID
+  WECHAT_PRIVATE_KEY_PATH 微信私钥路径
+
+npm 脚本:
+  npm run deploy          显示帮助
+  npm run deploy:local    本地部署
+  npm run deploy:ci       CI/CD 部署
+  npm run deploy:cli      安装 CLI
+  npm run deploy:login    登录
 
 示例:
   # 本地开发
-  node scripts/deploy.js local
+  npm run deploy:local
   
   # CI/CD 部署
   WECHAT_ENV_ID=doghead-advisor \\
   WECHAT_APPID=wx3ae4dfecd97351ea \\
-  WECHAT_PRIVATE_KEY="$(cat private.key)" \\
-  node scripts/deploy.js ci
+  WECHAT_PRIVATE_KEY_PATH=./private.key \\
+  npm run deploy:ci
       `);
   }
 }

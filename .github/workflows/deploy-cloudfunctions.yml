@@ -1,0 +1,63 @@
+name: 狗头军师 - 云函数部署
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudfunctions/**'
+      - 'scripts/deploy*.js'
+      - 'scripts/deploy*.sh'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '部署环境'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: 安装依赖
+        run: npm ci
+        
+      - name: 安装微信 CLI
+        run: npm install --save-dev miniprogram-ci
+        
+      - name: 解密私钥
+        env:
+          WECHAT_PRIVATE_KEY: ${{ secrets.WECHAT_PRIVATE_KEY }}
+        run: |
+          echo "$WECHAT_PRIVATE_KEY" > private.key
+          chmod 600 private.key
+          
+      - name: 部署云函数
+        env:
+          WECHAT_APPID: ${{ secrets.WECHAT_APPID }}
+          WECHAT_PRIVATE_KEY_PATH: ./private.key
+          WECHAT_PROJECT_PATH: .
+          WECHAT_ENV_ID: ${{ secrets.WECHAT_ENV_ID }}
+        run: node scripts/deploy-ci.js
+        
+      - name: 验证部署
+        run: |
+          echo "✅ 云函数部署完成"
+          echo ""
+          echo "📝 请在微信开发者工具中:"
+          echo "  1. 打开项目"
+          echo "  2. 检查云函数状态"
+          echo "  3. 提交审核发布"

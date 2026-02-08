@@ -11,9 +11,17 @@ exports.main = async (event, context) => {
       return { success: false, error: '未登录' };
     }
     
-    const questionsCount = await db.collection('questions').count();
+    console.log('[getUserStats] openid:', openid.substring(0, 10));
+    
+    // 使用 where + count 替代单独的 count
+    const questionsCount = await db.collection('questions')
+      .where({ openid })
+      .count();
+    
+    console.log('[getUserStats] 问题数:', questionsCount.total);
     
     const userRes = await db.collection('users').where({ openid }).get();
+    console.log('[getUserStats] 用户数据:', userRes.data.length > 0);
     
     return {
       success: true,
@@ -23,6 +31,7 @@ exports.main = async (event, context) => {
       }
     };
   } catch (error) {
+    console.log('[getUserStats] 错误:', error.message);
     return { success: false, error: error.message };
   }
 };

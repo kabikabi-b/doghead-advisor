@@ -38,13 +38,23 @@ async function callMiniMaxAPI(question) {
 
     if (response.data?.choices?.[0]?.message?.content) {
       let text = response.data.choices[0].message.content;
-      // 过滤思考标签
+      console.log('[generateReply] 原始内容:', text.substring(0, 200));
+      
+      // 过滤多种格式的思考标签
       text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
       text = text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '');
+      text = text.replace(/<thought>[\s\S]*?<\/thought>/gi, '');
+      text = text.replace(/<reflexion>[\s\S]*?<\/reflexion>/gi, '');
+      text = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
+      text = text.replace(/\n?</think>\n?/gi, '');
+      text = text.replace(/\n?<｜think｜>\n?/gi, '');
+      text = text.replace(/<｜think｜>[\s\S]*?<｜think｜>/gi, '');
+      
       text = text.trim();
-      console.log('[generateReply] ✅ OpenAI 格式:', text.substring(0, 100));
+      console.log('[generateReply] 过滤后:', text.substring(0, 100));
+      
       // 防止空文本
-      if (!text) {
+      if (!text || text.length < 5) {
         return { fallback: true, text: '🔮 AI 正在思考中...', reason: 'EMPTY_AFTER_FILTER' };
       }
       return { fallback: false, text };

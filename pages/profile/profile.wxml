@@ -1,50 +1,143 @@
 <!--pages/profile/profile.wxml-->
-<view class="container">
-  <!-- 用户信息 -->
-  <view class="user-card">
-    <view class="avatar-section">
-      <button class="avatar-btn" bindtap="onLoginTap" open-type="{{hasUserInfo ? '' : 'chooseAvatar'}}">
-        <image 
-          class="avatar" 
-          src="{{userInfo.avatarUrl || '/images/dog-avatar-new.jpg'}}" 
-          mode="aspectFill"
-        />
-      </button>
-    </view>
-    <view class="info-section">
-      <input 
-        class="nickname-input" 
-        value="{{userInfo.nickName || '狗狗用户'}}" 
-        bindinput="onNicknameInput"
-        disabled="{{!hasUserInfo}}"
-        placeholder="点击头像登录"
-      />
-      <text class="user-id">ID: {{userInfo._id || '未登录'}}</text>
-    </view>
+<view class="page-container">
+
+  <!-- 顶部横幅图 -->
+  <view class="hero-banner">
+    <image class="hero-img" src="/images/banner-samo.png" mode="aspectFill" />
+    <view class="hero-overlay"></view>
   </view>
 
-  <!-- 登录按钮 -->
-  <view class="login-btn-section" wx:if="{{!hasUserInfo}}">
-    <button class="wechat-login-btn" bindtap="onLoginTap" open-type="chooseAvatar">
-      📱 微信一键登录
-    </button>
-    <text class="login-tip">登录后同步你的历史和点赞</text>
-  </view>
+  <scroll-view scroll-y="true" class="scroll-area" refresher-enabled="{{true}}" bindrefresherrefresh="onPullDownRefresh" refresher-triggered="{{refreshing}}">
+    <view class="content" style="padding-top: {{contentPaddingTop}}px;">
 
-  <!-- 统计数据 -->
-  <view class="stats-card">
-    <view class="stat-item">
-      <text class="stat-num">{{stats.totalQuestions || 0}}</text>
-      <text class="stat-label">累计提问</text>
-    </view>
-    <view class="stat-item">
-      <text class="stat-num">{{stats.totalLikes || 0}}</text>
-      <text class="stat-label">获得点赞</text>
-    </view>
-  </view>
+      <!-- 用户卡片 -->
+      <view class="card user-card">
+        <view class="user-info-row">
+          <view class="avatar-wrap">
+            <text class="avatar-emoji">🐶</text>
+          </view>
+          <view class="user-text">
+            <text class="user-nickname">{{userInfo.nickName || '狗狗用户'}}</text>
+            <text class="user-id">ID: {{userId}}</text>
+          </view>
+        </view>
+      </view>
 
-  <!-- 跳转首页 -->
-  <view class="btn-section">
-    <button class="go-index-btn" bindtap="goToIndex">💬 去提问</button>
-  </view>
+      <!-- 每日运势 -->
+      <view class="fortune-card">
+        <image class="fortune-dog-deco" src="/images/fortune-deco.jpg" mode="aspectFill" />
+        <view class="fortune-content">
+          <text class="fortune-text">{{fortune}}</text>
+          <text class="fortune-advice">{{advice}}</text>
+        </view>
+      </view>
+
+      <!-- 今日提问 -->
+      <view class="card today-card">
+        <view class="today-left">
+          <text class="today-icon">🔥</text>
+          <text class="today-label">今日提问</text>
+        </view>
+        <text class="today-count">{{todayCount}}</text>
+      </view>
+
+      <!-- 统计网格 -->
+      <view class="stats-grid">
+        <view class="stats-grid-item">
+          <text class="stats-icon stats-icon-orange">📈</text>
+          <text class="stats-num stats-num-orange">{{stats.totalQuestions}}</text>
+          <text class="stats-label">总提问</text>
+        </view>
+        <view class="stats-grid-item">
+          <text class="stats-icon stats-icon-red">❤️</text>
+          <text class="stats-num stats-num-red">{{stats.totalLikes}}</text>
+          <text class="stats-label">获赞数</text>
+        </view>
+        <view class="stats-grid-item">
+          <text class="stats-icon stats-icon-blue">👁️</text>
+          <text class="stats-num stats-num-blue">{{stats.totalViews}}</text>
+          <text class="stats-label">总浏览</text>
+        </view>
+        <view class="stats-grid-item">
+          <text class="stats-icon stats-icon-orange">🔥</text>
+          <text class="stats-num stats-num-orange">{{stats.daysActive}}</text>
+          <text class="stats-label">活跃天数</text>
+        </view>
+      </view>
+
+      <!-- 最近提问 -->
+      <view class="card recent-section">
+        <view class="recent-header">
+          <view class="recent-header-left">
+            <text class="recent-icon">💬</text>
+            <text class="recent-title">最近提问</text>
+          </view>
+          <text class="recent-viewall" bindtap="navigateToHistory">查看全部</text>
+        </view>
+
+        <!-- 空状态 -->
+        <view class="empty-state" wx:if="{{myQuestions.length === 0}}">
+          <text class="empty-emoji">🤔</text>
+          <text class="empty-text">还没有提问记录</text>
+          <button class="btn-primary go-ask-btn" bindtap="navigateToHome">去提问</button>
+        </view>
+
+        <!-- 提问列表 -->
+        <view wx:else>
+          <view class="question-item" wx:for="{{myQuestions}}" wx:key="_id" bindtap="onQuestionTap" data-id="{{item._id}}">
+            <text class="question-text">{{item.question}}</text>
+            <text class="question-date">{{item.dateStr}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 深色模式 -->
+      <view class="card theme-card">
+        <view class="theme-left">
+          <text class="theme-icon">{{darkMode ? '☀️' : '🌙'}}</text>
+          <text class="theme-label">深色模式</text>
+        </view>
+        <switch checked="{{darkMode}}" bindchange="toggleTheme" color="#F97316" />
+      </view>
+
+      <!-- 设置 -->
+      <view class="card settings-card">
+        <view class="settings-item" bindtap="handleSettings">
+          <text class="settings-icon">⚙️</text>
+          <text class="settings-text">设置</text>
+        </view>
+        <view class="settings-item" bindtap="handleFeedback">
+          <text class="settings-icon">❓</text>
+          <text class="settings-text">意见反馈</text>
+        </view>
+        <view class="settings-item" bindtap="handleAgreement">
+          <text class="settings-icon">📄</text>
+          <text class="settings-text">用户协议</text>
+        </view>
+        <view class="settings-item" bindtap="handlePrivacy">
+          <text class="settings-icon">🛡️</text>
+          <text class="settings-text">隐私政策</text>
+        </view>
+        <view class="settings-item" bindtap="handleAbout">
+          <text class="settings-icon">ℹ️</text>
+          <text class="settings-text">关于我们</text>
+        </view>
+        <view class="settings-item" bindtap="handleClearCache">
+          <text class="settings-icon">🗑️</text>
+          <text class="settings-text">清除缓存</text>
+        </view>
+        <view class="settings-item settings-item-danger" bindtap="handleLogout">
+          <text class="settings-icon">🚪</text>
+          <text class="settings-text-danger">退出登录</text>
+        </view>
+      </view>
+
+      <!-- Footer -->
+      <view class="footer">
+        <text class="footer-version">狗狗军师 v2.0</text>
+        <text class="footer-slogan">人生迷茫？狗头来帮！</text>
+      </view>
+
+    </view>
+  </scroll-view>
 </view>

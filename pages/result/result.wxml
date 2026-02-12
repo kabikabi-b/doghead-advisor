@@ -1,40 +1,65 @@
 <!--pages/result/result.wxml-->
-<view class="container">
-  <!-- Header -->
-  <view class="header">
-    <view class="header-center">
-      <image class="header-avatar" src="/images/dog-avatar-new.jpg" mode="aspectFit"></image>
-      <text class="header-title">狗狗军师</text>
+<view class="page-container">
+  <!-- 顶部导航栏 -->
+  <view class="sticky-header">
+    <view class="header-inner">
+      <view class="back-btn" bindtap="goBack">
+        <text class="back-arrow">←</text>
+      </view>
+      <text class="header-title">问答详情</text>
     </view>
   </view>
 
-  <!-- Question Card -->
+  <!-- 用户信息卡片 -->
+  <view class="card user-card">
+    <view class="user-left">
+      <text class="user-emoji">🎭</text>
+      <view class="user-info">
+        <text class="user-name">匿名用户</text>
+        <text class="user-time">{{formatTimeText}}</text>
+      </view>
+    </view>
+    <view class="user-right">
+      <text class="view-icon">👁</text>
+      <text class="view-count">{{viewCount}}</text>
+    </view>
+  </view>
+
+  <!-- 问题卡片 -->
   <view class="card question-card">
-    <text class="card-label">Q</text>
-    <text class="card-content question">{{question}}</text>
+    <text class="card-label">问：</text>
+    <text class="question-text">{{question}}</text>
   </view>
 
-  <!-- Answer Card -->
+  <!-- 回答卡片 -->
   <view class="card answer-card">
-    <text class="card-label answer">A</text>
-    <text class="card-content answer">{{reply}}</text>
+    <view class="answer-header">
+      <text class="answer-emoji">🐶</text>
+      <text class="answer-label">军师说：</text>
+    </view>
+    <text class="answer-text">{{reply}}</text>
   </view>
 
-  <!-- Action Buttons -->
-  <view class="action-buttons">
-    <view class="action-btn copy-btn" bindtap="onCopyTap" data-content="{{reply}}">
-      <text class="action-icon">📋</text>
-      <text class="action-text">一键复制</text>
+  <!-- 操作栏 -->
+  <view class="card action-bar">
+    <view class="action-item" bindtap="handleLike">
+      <text class="action-icon {{isLiked ? 'liked' : ''}}">{{isLiked ? '❤️' : '🤍'}}</text>
+      <text class="action-count {{isLiked ? 'liked' : ''}}">{{likeCount}}</text>
     </view>
-    <view class="action-btn like-btn {{liked ? 'liked' : ''}}" bindtap="onLikeTap">
-      <text class="action-icon">{{liked ? '❤️' : '👍'}}</text>
-      <text class="action-text">{{liked ? '已赞' : '点赞'}} {{likeCount}}</text>
+    <view class="action-item" bindtap="handleComment">
+      <text class="action-icon">💬</text>
+      <text class="action-count">{{commentCount}}</text>
+    </view>
+    <view class="action-item" bindtap="handleShare">
+      <text class="action-icon">↗</text>
+      <text class="action-count">分享</text>
     </view>
   </view>
 
-  <!-- Ask Again Button -->
-  <view class="ask-again-btn" bindtap="onAskAgainTap">
-    <text>🔄 再问一个</text>
+  <!-- 评论占位 -->
+  <view class="card comment-placeholder">
+    <text class="comment-emoji">💬</text>
+    <text class="comment-hint">评论功能即将上线...</text>
   </view>
 
   <!-- Toast -->

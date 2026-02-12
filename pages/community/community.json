@@ -1,4 +1,4 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "社群"
+  "navigationStyle": "custom",
+  "usingComponents": {}
 }

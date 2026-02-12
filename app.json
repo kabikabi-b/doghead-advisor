@@ -2,22 +2,22 @@
   "pages": [
     "pages/index/index",
     "pages/community/community",
-    "pages/leaderboard/leaderboard",
     "pages/profile/profile",
     "pages/result/result",
     "pages/history/history"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#F5F5DC",
+    "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "狗狗军师",
-    "backgroundColor": "#F5F5DC",
-    "backgroundTextStyle": "dark"
+    "backgroundColor": "#FFF7ED",
+    "backgroundTextStyle": "dark",
+    "navigationStyle": "custom"
   },
   "tabBar": {
-    "color": "#A0522D",
-    "selectedColor": "#D2691E",
-    "backgroundColor": "rgba(255, 255, 255, 0.9)",
+    "color": "#6B7280",
+    "selectedColor": "#EA580C",
+    "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
       {
@@ -28,15 +28,9 @@
       },
       {
         "pagePath": "pages/community/community",
-        "text": "社群",
+        "text": "热门",
         "iconPath": "images/tab-community.png",
         "selectedIconPath": "images/tab-community-active.png"
-      },
-      {
-        "pagePath": "pages/leaderboard/leaderboard",
-        "text": "排行榜",
-        "iconPath": "images/tab-rank.png",
-        "selectedIconPath": "images/tab-rank-active.png"
       },
       {
         "pagePath": "pages/profile/profile",

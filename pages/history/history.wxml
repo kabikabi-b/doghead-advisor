@@ -1,33 +1,32 @@
 <!--pages/history/history.wxml-->
-<view class="container">
-  <!-- Header -->
-  <view class="header">
-    <text class="header-title">📜 历史记录</text>
+<view class="page-container">
+  <!-- 顶部导航栏 -->
+  <view class="sticky-header">
+    <view class="header-inner">
+      <view class="back-btn" bindtap="goBack">
+        <text class="back-arrow">←</text>
+      </view>
+      <text class="header-title">提问历史</text>
+    </view>
   </view>
 
-  <!-- History List -->
-  <scroll-view class="history-list" scroll-y="true" wx:if="{{history.length > 0}}">
-    <block wx:for="{{history}}" wx:key="id">
-      <view class="history-item" bindtap="onItemTap" data-item="{{item}}">
-        <view class="history-q">
-          <text class="history-label">Q</text>
-          <text class="history-question">{{item.question}}</text>
-        </view>
-        <view class="history-a">
-          <text class="history-label answer">A</text>
-          <text class="history-reply">{{item.reply}}</text>
-        </view>
-        <text class="history-time">{{item.createTime}}</text>
+  <!-- 历史列表 -->
+  <view class="history-list" wx:if="{{questions.length > 0}}">
+    <view class="card history-item" wx:for="{{questions}}" wx:key="_id" bindtap="onItemTap" data-item="{{item}}">
+      <text class="history-question">{{item.question}}</text>
+      <view class="history-meta">
+        <text class="history-time">{{item.timeText}}</text>
+        <text class="history-likes" wx:if="{{item.likes > 0}}">❤️ {{item.likes}}</text>
       </view>
-    </block>
-  </scroll-view>
+    </view>
+  </view>
 
-  <!-- Empty State -->
+  <!-- 空状态 -->
   <view class="empty-state" wx:else>
     <text class="empty-icon">📭</text>
-    <text class="empty-text">还没有问答记录</text>
-    <text class="empty-hint">去问狗狗军师吧！</text>
-    <view class="empty-btn" bindtap="goToAsk">
+    <text class="empty-text">还没有提问记录</text>
+    <text class="empty-hint">去问问狗头军师吧！</text>
+    <view class="btn-primary empty-btn" bindtap="goToAsk">
       <text>去提问</text>
     </view>
   </view>

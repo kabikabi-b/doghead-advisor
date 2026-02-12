@@ -1,51 +1,98 @@
 <!--pages/index/index.wxml-->
-<view class="container">
-  <!-- Header -->
-  <view class="header">
-    <view class="logo-container">
-      <image 
-        class="logo" 
-        src="/images/dog-avatar-new.jpg" 
-        mode="aspectFit"
-      />
-    </view>
-    <text class="title">狗狗军师</text>
-    <text class="subtitle">今天有什么烦心事？</text>
-  </view>
+<view class="page-bg">
 
-  <!-- Question Card -->
-  <view class="question-card">
-    <textarea 
-      class="input-field"
-      placeholder="输入你的问题..."
-      placeholder-class="placeholder"
-      maxlength="500"
-      cursor-spacing="20"
-      bindinput="onQuestionInput"
-      value="{{question}}"
-    ></textarea>
-  </view>
+  <view class="content-area">
 
-  <!-- Generate Button -->
-  <view class="btn-container">
-    <button 
-      class="generate-btn {{loading ? 'disabled' : ''}}" 
-      bindtap="onGenerateTap"
-      disabled="{{loading}}"
-    >
-      {{loading ? '生成中...' : '🐕 咨询狗哥'}}
-    </button>
-  </view>
-
-  <!-- Sample Questions -->
-  <view class="sample-section" wx:if="{{sampleQuestions.length > 0}}">
-    <text class="sample-title">💬 热门问答</text>
-    <view class="sample-list">
-      <block wx:for="{{sampleQuestions}}" wx:key="index">
-        <view class="sample-item" bindtap="onSampleTap" data-question="{{item}}">
-          <text class="sample-q">{{item}}</text>
+    <!-- Banner Card (无答案且不加载时显示) -->
+    <view class="banner-card" wx:if="{{!showAnswer && !isLoading}}">
+      <view class="banner-img-wrap">
+        <image class="banner-img" src="/images/banner-chai.png" mode="aspectFill" />
+        <view class="banner-overlay"></view>
+        <view class="banner-bottom">
+          <text class="banner-title">🐶 狗狗军师</text>
+          <text class="banner-text">🐕 有什么烦恼，尽管问我吧~ 🌟</text>
         </view>
-      </block>
+      </view>
     </view>
+
+    <!-- Question Input Card (无答案时显示) -->
+    <view class="input-card" wx:if="{{!showAnswer && !isLoading}}">
+      <view class="input-header">
+        <text class="input-icon">💬</text>
+        <text class="input-label">向军师请教</text>
+      </view>
+      <textarea
+        class="question-textarea"
+        placeholder="比如：今天吃什么好？\n老板不给涨工资怎么办？\n如何追到女神？"
+        placeholder-class="textarea-placeholder"
+        maxlength="200"
+        bindinput="handleInput"
+        value="{{question}}"
+      />
+      <view class="input-footer">
+        <text class="char-count">{{charCount}}/200</text>
+        <button class="ask-btn" bindtap="handleAskQuestion" disabled="{{!question}}">
+          <text class="ask-btn-icon">✨</text>
+          <text class="ask-btn-text">求军师指点</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- Loading State -->
+    <view class="loading-card" wx:if="{{isLoading}}">
+      <view class="loading-emoji-wrap">
+        <text class="loading-emoji">🐶</text>
+      </view>
+      <text class="loading-msg">{{loadingMessage}}</text>
+      <view class="loading-dots">
+        <view class="dot dot-1"></view>
+        <view class="dot dot-2"></view>
+        <view class="dot dot-3"></view>
+      </view>
+    </view>
+
+    <!-- Answer Display -->
+    <view wx:if="{{showAnswer}}">
+      <view class="question-display">
+        <text class="q-emoji">🙋</text>
+        <view class="q-content">
+          <text class="q-label">你问：</text>
+          <text class="q-text">{{question}}</text>
+        </view>
+      </view>
+
+      <view class="answer-display">
+        <text class="a-emoji">🐶</text>
+        <view class="a-content">
+          <text class="a-label">军师说：</text>
+          <text class="a-text">{{answer}}</text>
+        </view>
+      </view>
+
+      <view class="answer-actions">
+        <button class="btn-share" bindtap="handleShareToSquare">分享到广场</button>
+        <button class="btn-again" bindtap="handleReset">再问一次</button>
+      </view>
+    </view>
+
+    <!-- Tips Card -->
+    <view class="tips-card" wx:if="{{!showAnswer && !isLoading}}">
+      <text class="tips-text">💡 提示：问题越具体，军师的建议越靠谱哦！</text>
+    </view>
+
+    <!-- Hot Questions -->
+    <view class="hot-section" wx:if="{{!showAnswer && !isLoading && hotQuestions.length > 0}}">
+      <view class="hot-header">
+        <text class="hot-icon">📈</text>
+        <text class="hot-title">最近热门问题</text>
+      </view>
+      <view class="hot-list">
+        <view class="hot-item" wx:for="{{hotQuestions}}" wx:key="id" bindtap="handleQuickAsk" data-question="{{item.question}}">
+          <text class="hot-item-icon">💬</text>
+          <text class="hot-item-text">{{item.question}}</text>
+        </view>
+      </view>
+    </view>
+
   </view>
 </view>

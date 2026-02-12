@@ -1,124 +1,215 @@
 /* pages/result/result.wxss */
 
-/* Container */
-.container {
+.page-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #F5F5DC 0%, #FFE4B5 100%);
-  padding: 0 30rpx;
+  background: linear-gradient(180deg, #FFF7ED 0%, #FEFCE8 50%, #EFF6FF 100%);
+  padding-bottom: 40rpx;
 }
 
-/* Header */
-.header {
+/* 顶部导航栏 */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 2rpx solid #FFEDD5;
+}
+
+.header-inner {
   display: flex;
   align-items: center;
-  padding: 30rpx 0;
+  gap: 24rpx;
+  padding: 24rpx 32rpx;
+  padding-top: calc(24rpx + env(safe-area-inset-top));
+}
+
+.back-btn {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
   justify-content: center;
-}
-
-.header-center {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.header-avatar {
-  width: 56rpx;
-  height: 56rpx;
   border-radius: 50%;
-  border: 3rpx solid #FF8A65;
+}
+
+.back-btn:active {
+  background: rgba(234, 88, 12, 0.1);
+}
+
+.back-arrow {
+  font-size: 40rpx;
+  color: #EA580C;
+  font-weight: 600;
 }
 
 .header-title {
   font-size: 36rpx;
-  font-weight: 700;
-  color: #5D4037;
+  font-weight: 600;
+  color: #1F2937;
 }
 
-/* Card */
+/* 卡片通用 */
 .card {
-  background: #FFFFFF;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 24rpx;
-  padding: 30rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 16rpx rgba(139, 69, 19, 0.1);
+  margin: 24rpx 32rpx 0;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 用户信息卡片 */
+.user-card {
+  padding: 32rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.user-emoji {
+  font-size: 48rpx;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #1F2937;
+}
+
+.user-time {
+  font-size: 26rpx;
+  color: #6B7280;
+  margin-top: 4rpx;
+}
+
+.user-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.view-icon {
+  font-size: 28rpx;
+}
+
+.view-count {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+/* 问题卡片 */
+.question-card {
+  padding: 48rpx;
 }
 
 .card-label {
-  display: inline-block;
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #FFFFFF;
-  background: #8B4513;
-  padding: 8rpx 20rpx;
-  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: #6B7280;
   margin-bottom: 16rpx;
+  display: block;
 }
 
-.card-label.answer {
-  background: #FF8A65;
-}
-
-.card-content {
-  font-size: 30rpx;
+.question-text {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #1F2937;
   line-height: 1.6;
-  color: #5D4037;
+  display: block;
 }
 
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 24rpx;
-  margin: 40rpx 0;
+/* 回答卡片 */
+.answer-card {
+  padding: 48rpx;
+  background: linear-gradient(135deg, #FFF7ED 0%, #FEFCE8 100%);
 }
 
-.action-btn {
-  flex: 1;
+.answer-header {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12rpx;
-  padding: 24rpx;
-  background: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 4rpx 12rpx rgba(139, 69, 19, 0.1);
+  margin-bottom: 24rpx;
 }
 
-.action-btn:active {
-  transform: scale(0.98);
+.answer-emoji {
+  font-size: 40rpx;
 }
 
-.action-btn.liked {
-  background: #FFEBEE;
+.answer-label {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #EA580C;
+}
+
+.answer-text {
+  font-size: 32rpx;
+  color: #1F2937;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  display: block;
+}
+
+/* 操作栏 */
+.action-bar {
+  padding: 32rpx;
+  display: flex;
+  justify-content: space-around;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.action-item:active {
+  opacity: 0.7;
 }
 
 .action-icon {
-  font-size: 36rpx;
+  font-size: 48rpx;
+  color: #4B5563;
 }
 
-.action-text {
-  font-size: 28rpx;
-  color: #5D4037;
-  font-weight: 600;
+.action-icon.liked {
+  color: #EF4444;
 }
 
-/* Ask Again Button */
-.ask-again-btn {
+.action-count {
+  font-size: 26rpx;
+  color: #4B5563;
+}
+
+.action-count.liked {
+  color: #EF4444;
+}
+
+/* 评论占位 */
+.comment-placeholder {
+  padding: 64rpx;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: auto;
-  margin: 0;
-  padding: 28rpx 30rpx;
-  background: linear-gradient(135deg, #FF8A65 0%, #FF7043 100%);
-  border-radius: 16rpx;
-  color: #FFFFFF;
-  font-size: 32rpx;
-  font-weight: 600;
-  box-shadow: 0 4rpx 16rpx rgba(255, 138, 101, 0.4);
+  gap: 16rpx;
 }
 
-.ask-again-btn:active {
-  transform: scale(0.98);
+.comment-emoji {
+  font-size: 80rpx;
+}
+
+.comment-hint {
+  font-size: 28rpx;
+  color: #6B7280;
 }
 
 /* Toast */

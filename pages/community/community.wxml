@@ -1,73 +1,107 @@
 <!--pages/community/community.wxml-->
 <view class="container">
-  <!-- 筛选栏 -->
-  <view class="filter-bar">
-    <view 
-      class="filter-item {{filter === 'latest' ? 'active' : ''}}" 
-      bindtap="onFilterTap" 
-      data-filter="latest"
-    >
-      最新
-    </view>
-    <view 
-      class="filter-item {{filter === 'hot' ? 'active' : ''}}" 
-      bindtap="onFilterTap" 
-      data-filter="hot"
-    >
-      最热
+  <!-- 顶部横幅图 -->
+  <view class="hero-banner">
+    <image class="hero-img" src="/images/banner-community.png" mode="aspectFill" />
+    <view class="hero-overlay"></view>
+  </view>
+
+  <!-- 标签栏（紧贴横幅下方） -->
+  <view class="tab-header" style="top: {{tabStickyTop}}px;">
+    <view class="tab-bar">
+      <view
+        class="tab-item {{sortBy === 'hot' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-sort="hot"
+      >
+        <text class="tab-icon">🔥</text>
+        <text>热度排序</text>
+      </view>
+      <view
+        class="tab-item {{sortBy === 'latest' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-sort="latest"
+      >
+        <text class="tab-icon">🕐</text>
+        <text>最新发布</text>
+      </view>
     </view>
   </view>
 
-  <!-- 问题列表 -->
-  <view class="question-list">
-    <block wx:if="{{questions.length > 0}}">
-      <view 
-        class="question-card" 
-        wx:for="{{questions}}" 
-        wx:key="_id"
-      >
-        <view class="question-header" bindtap="onQuestionTap" data-id="{{item._id}}">
-          <text class="question-text">{{item.question}}</text>
-          <text class="expand-icon">{{expandedId === item._id ? '收起' : '展开'}}</text>
-        </view>
-        
-        <view class="answer-section {{expandedId === item._id ? 'show' : 'hide'}}">
-          <text class="answer-text">{{item.reply}}</text>
-          
-          <view class="vote-bar">
-            <view class="vote-item" bindtap="onVote" data-type="question" data-id="{{item._id}}">
-              <text class="vote-icon">{{item.voted ? '❤️' : '🤍'}}</text>
-              <text class="vote-count">{{item.likes || 0}}</text>
-            </view>
+  <!-- 数据库错误状态 -->
+  <view class="error-state" wx:if="{{collectionError}}">
+    <text class="error-icon-text">⚠️</text>
+    <text class="error-text">数据库待初始化</text>
+    <text class="error-hint">需要初始化以下集合: {{collectionNotReady}}</text>
+    <button class="retry-btn" bindtap="initDatabase">立即初始化</button>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:elif="{{questions.length === 0 && !loading}}">
+    <image
+      class="empty-image"
+      src="/images/empty-community.jpg"
+      mode="aspectFill"
+    />
+    <text class="empty-title">还没有人提问哦~</text>
+    <text class="empty-subtitle">快去首页问点什么吧！</text>
+  </view>
+
+  <!-- 问题卡片列表 -->
+  <view class="question-list" wx:else>
+    <view
+      class="question-card"
+      wx:for="{{questions}}"
+      wx:key="_id"
+      bindtap="handleCardClick"
+      data-item="{{item}}"
+    >
+      <!-- 用户信息行 -->
+      <view class="user-row">
+        <text class="user-emoji">🎭</text>
+        <text class="user-name">匿名用户</text>
+        <text class="time-dot">·</text>
+        <text class="time-text">{{item._relativeTime}}</text>
+      </view>
+
+      <!-- 问题 -->
+      <view class="question-row">
+        <text class="question-label">问：</text>
+        <text class="question-text">{{item.question}}</text>
+      </view>
+
+      <!-- 回答预览 -->
+      <view class="answer-preview" wx:if="{{item.reply}}">
+        <text class="answer-text">{{item.reply}}</text>
+      </view>
+
+      <!-- 统计栏 -->
+      <view class="stats-bar">
+        <view class="stats-left">
+          <view class="stat-item">
+            <text class="stat-icon">👁️</text>
+            <text class="stat-text">{{item._viewsText || '0'}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-icon">💬</text>
+            <text class="stat-text">{{item._commentsText || '0'}}</text>
           </view>
         </view>
+        <view class="stat-item like-btn {{item._liked ? 'liked' : ''}}" catchtap="handleLike" data-id="{{item._id}}">
+          <text class="stat-icon">{{item._liked ? '❤️' : '🤍'}}</text>
+          <text class="stat-text {{item._liked ? 'liked-text' : ''}}">{{item._likesText || '0'}}</text>
+        </view>
       </view>
-    </block>
-    
+    </view>
+
     <!-- 加载状态 -->
     <view class="loading-state" wx:if="{{loading}}">
-      <text>加载中...</text>
+      <text class="loading-text">加载中...</text>
     </view>
-    
-    <!-- 数据库集合错误状态 -->
-    <view class="error-state" wx:if="{{collectionError}}">
-      <text class="error-icon">⚠️</text>
-      <text class="error-text">数据库待初始化</text>
-      <text class="error-hint">需要初始化以下集合: {{collectionNotReady.join(', ')}}</text>
-      <view class="error-actions">
-        <button class="retry-btn" bindtap="initDatabase">立即初始化</button>
-      </view>
-    </view>
-    
-    <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{questions.length === 0 && !loading && !collectionError}}">
-      <text class="empty-icon">📭</text>
-      <text class="empty-text">暂无问题，快来首页提问吧！</text>
-    </view>
-    
+
     <!-- 没有更多 -->
     <view class="no-more" wx:if="{{!hasMore && questions.length > 0 && !loading}}">
-      <text>没有更多了</text>
+      <text class="no-more-text">— 没有更多了 —</text>
     </view>
   </view>
 </view>

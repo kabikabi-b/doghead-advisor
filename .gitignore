@@ -28,3 +28,7 @@ coverage/
 
 # Cloud functions
 node_modules/
+
+
+# Claude
+.claude/
